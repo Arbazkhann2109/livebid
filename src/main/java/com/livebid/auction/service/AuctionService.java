@@ -1,0 +1,180 @@
+
+package com.livebid.auction.service;
+
+import com.livebid.auction.entity.Auction;
+import com.livebid.auction.repository.AuctionRepository;
+import com.livebid.common.exception.ResourceNotFoundException;
+import com.livebid.user.entity.User;
+import com.livebid.user.service.UserService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Locale;
+import java.util.Set;
+
+@Service
+@Transactional(readOnly = true)
+public class AuctionService {
+
+    private static final Set<String> SUPPORTED_CURRENCIES =
+            Set.of("INR", "USD", "EUR");
+
+    private final AuctionRepository auctionRepository;
+    private final UserService userService;
+
+    public AuctionService(
+            AuctionRepository auctionRepository,
+            UserService userService
+    ) {
+        this.auctionRepository = auctionRepository;
+        this.userService = userService;
+    }
+
+    public Auction getById(Long id) {
+        if (id == null || id <= 0) {
+            throw new IllegalArgumentException("Auction ID must be positive.");
+        }
+
+        return auctionRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Auction not found: " + id));
+    }
+
+    public Page<Auction> getAuctions(Pageable pageable) {
+        return auctionRepository.findAll(pageable);
+    }
+
+    @Transactional
+    public Auction createAuction(
+            Long sellerId,
+            String title,
+            String description,
+            BigDecimal startingPrice,
+            String currency,
+            LocalDateTime startsAt,
+            LocalDateTime endsAt
+    ) {
+        if (sellerId == null || sellerId <= 0) {
+            throw new IllegalArgumentException("Seller ID must be positive.");
+        }
+        if (title == null || title.isBlank() || title.trim().length() > 200) {
+            throw new IllegalArgumentException("Title must contain 1–200 characters.");
+        }
+        if (startingPrice == null || startingPrice.signum() < 0
+                || startingPrice.scale() > 2
+                || startingPrice.precision() > 13) {
+            throw new IllegalArgumentException("Starting price must be non-negative with at most 2 decimal places.");
+        }
+        if (currency == null || !SUPPORTED_CURRENCIES.contains(
+                currency.trim().toUpperCase(Locale.ROOT))) {
+            throw new IllegalArgumentException("Unsupported currency.");
+        }
+        if (startsAt == null || endsAt == null || !endsAt.isAfter(startsAt)) {
+            throw new IllegalArgumentException("End time must be after start time.");
+        }
+
+        User seller = userService.getById(sellerId);
+
+        if (!"ACTIVE".equals(seller.getStatus())) {
+            throw new IllegalArgumentException("Seller account is not active.");
+        }
+
+        Auction auction = Auction.createDraft(
+                seller,
+                title.trim(),
+                description,
+                startingPrice,
+                currency.trim().toUpperCase(Locale.ROOT),
+                startsAt,
+                endsAt
+        );
+
+        return auctionRepository.save(auction);
+    }
+
+
+    @Transactional
+    public Auction scheduleAuction(Long auctionId, Long sellerId) {
+        if (auctionId == null || auctionId <= 0) {
+            throw new IllegalArgumentException(
+                    "Auction ID must be positive.");
+        }
+
+        if (sellerId == null || sellerId <= 0) {
+            throw new IllegalArgumentException(
+                    "Seller ID must be positive.");
+        }
+
+        // Lock the auction row to prevent concurrent state transitions.
+        Auction auction = auctionRepository.findByIdForUpdate(auctionId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Auction not found: " + auctionId));
+
+        if (!auction.getSeller().getId().equals(sellerId)) {
+            throw new org.springframework.security.access.AccessDeniedException(
+                    "Only the auction seller can schedule this auction.");
+        }
+
+        if (!"DRAFT".equals(auction.getStatus())) {
+            throw new IllegalStateException(
+                    "Only draft auctions can be scheduled.");
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+
+        if (!auction.getStartsAt().isAfter(now)) {
+            throw new IllegalStateException(
+                    "Auction start time must be in the future.");
+        }
+
+        auction.setStatus("SCHEDULED");
+
+        return auctionRepository.save(auction);
+    }
+
+
+    @Transactional
+    public void activateScheduledAuction(Long auctionId) {
+        Auction auction = auctionRepository.findByIdForUpdate(auctionId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Auction not found: " + auctionId));
+
+        LocalDateTime now = LocalDateTime.now();
+
+        if (!"SCHEDULED".equals(auction.getStatus())
+                || auction.getStartsAt().isAfter(now)) {
+            return;
+        }
+
+        // If the entire auction window has passed, do not activate it.
+        if (!auction.getEndsAt().isAfter(now)) {
+            auction.setStatus("ENDED");
+        } else {
+            auction.setStatus("LIVE");
+        }
+
+        auctionRepository.save(auction);
+    }
+
+    @Transactional
+    public void endExpiredAuction(Long auctionId) {
+        Auction auction = auctionRepository.findByIdForUpdate(auctionId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Auction not found: " + auctionId));
+
+        if ("LIVE".equals(auction.getStatus())
+                && !auction.getEndsAt().isAfter(LocalDateTime.now())) {
+            auction.setStatus("ENDED");
+            auctionRepository.save(auction);
+        }
+    }
+
+
+}

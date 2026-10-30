@@ -1,0 +1,27 @@
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Local application secrets
+application-local.properties
+application-secret.properties
+
+# Logs
+*.log
+logs/
+
+# Java temporary files
+*.class
+
+# OS files
+.DS_Store
+Thumbs.db
+target/
+.idea/
+*.iml
+.env
+.env.*
+!.env.example
+*.log

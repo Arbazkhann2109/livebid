@@ -1,0 +1,515 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Auction Details | LiveBid</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 30px 16px;
+            background: #0b1120;
+            color: #f8fafc;
+            font: 16px/1.6 Arial, sans-serif;
+        }
+
+        main { max-width: 850px; margin: auto; }
+
+        a { color: #38bdf8; text-decoration: none; }
+
+        .panel {
+            margin-top: 24px;
+            padding: 24px;
+            border: 1px solid #28354a;
+            border-radius: 14px;
+            background: #151e30;
+        }
+
+        .muted { color: #9ca3b8; }
+
+        .status {
+            color: #6ee7b7;
+            font-weight: bold;
+        }
+
+        .price { font-size: 1.8rem; font-weight: bold; }
+
+        table { width: 100%; border-collapse: collapse; }
+
+        th, td {
+            padding: 12px 8px;
+            border-bottom: 1px solid #28354a;
+            text-align: left;
+        }
+
+        th { color: #9ca3b8; }
+
+        .table-wrap { overflow-x: auto; }
+
+        .leading-row { background: #1e3a36; }
+
+        .leading-label {
+            color: #6ee7b7;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .live-indicator {
+            color: #6ee7b7;
+            font-size: 13px;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+
+<body>
+<main>
+
+    <a th:href="@{/}">← Back to auctions</a>
+
+    <!-- Auction information -->
+    <section class="panel">
+
+        <div class="status" th:text="${auction.status}">LIVE</div>
+
+        <h1 th:text="${auction.title}">Auction title</h1>
+
+        <p class="muted"
+           th:text="${auction.description != null and !auction.description.isBlank()
+               ? auction.description : 'No description provided.'}">
+            Auction description
+        </p>
+
+        <p class="muted">Starting price</p>
+
+        <div class="price">
+            <span th:text="${auction.currency}">INR</span>
+            <span th:text="${#numbers.formatDecimal(auction.startingPrice, 1, 2)}">
+                50.00
+            </span>
+        </div>
+
+        <p>
+            <strong>Starts:</strong>
+            <span th:text="${#temporals.format(auction.startsAt, 'dd MMM yyyy, HH:mm')}">
+                Start time
+            </span>
+        </p>
+
+        <p>
+            <strong>Ends:</strong>
+            <span th:text="${#temporals.format(auction.endsAt, 'dd MMM yyyy, HH:mm')}">
+                End time
+            </span>
+        </p>
+
+        <!-- Countdown -->
+        <div class="panel" style="margin-top:20px; background:#0b1120;">
+            <h2>Time Remaining</h2>
+
+            <div id="auctionCountdown"
+                 th:data-end-time="${#temporals.format(auction.endsAt, 'yyyy-MM-dd HH:mm:ss')}"
+                 style="font-size:2rem; font-weight:bold; color:#6ee7b7;">
+                Calculating...
+            </div>
+
+            <p id="auctionCountdownMessage" class="muted">
+                Time remaining until auction ends.
+            </p>
+        </div>
+
+    </section>
+
+    <!-- Current auction status -->
+    <section class="panel">
+
+        <h2>
+            Current Auction Status
+            <span class="live-indicator">● LIVE</span>
+        </h2>
+
+        <p class="muted">Current highest bid</p>
+
+        <div class="price">
+            <span th:text="${auction.currency}">INR</span>
+            <span id="currentHighestBid"
+                  th:text="${#numbers.formatDecimal(currentHighestBid, 1, 2)}">
+                50.00
+            </span>
+        </div>
+
+        <p>
+            <strong>Total bids:</strong>
+            <span id="totalBids" th:text="${totalBids}">0</span>
+        </p>
+
+        <p>
+            <strong>Leading bidder:</strong>
+            <span id="leadingBidder"
+                  th:text="${leadingBidder != null ? leadingBidder : 'No bids yet'}">
+                No bids yet
+            </span>
+        </p>
+
+    </section>
+
+    <!-- Place bid -->
+    <section class="panel">
+
+        <h2>Place a bid</h2>
+
+        <p th:if="${bidSuccess}"
+           th:text="${bidSuccess}"
+           style="color: #6ee7b7;">
+            Your bid was placed successfully.
+        </p>
+
+        <p th:if="${bidError}"
+           th:text="${bidError}"
+           style="color: #fca5a5;">
+            Your bid could not be placed.
+        </p>
+
+        <form th:action="@{/auctions/{id}/bids(id=${auction.id})}"
+              method="post">
+
+            <label for="amount">Your bid amount</label>
+
+            <input id="amount"
+                   name="amount"
+                   type="number"
+                   min="0.01"
+                   step="0.01"
+                   required
+                   style="display:block; width:100%; max-width:320px;
+                      padding:12px; margin:10px 0 16px;
+                      border-radius:8px;">
+
+            <button type="submit"
+                    style="padding:12px 20px; border:0;
+                       border-radius:8px; background:#38bdf8;
+                       color:#082032; font-weight:bold; cursor:pointer;">
+                Place Bid
+            </button>
+
+        </form>
+
+    </section>
+
+    <!-- Bid history -->
+    <section class="panel">
+
+        <h2>Bid history</h2>
+
+        <p id="noBidsMessage"
+           class="muted"
+           th:style="${#lists.isEmpty(bids) ? '' : 'display:none;'}">
+            No bids have been placed yet.
+        </p>
+
+        <div class="table-wrap">
+
+            <table id="bidHistoryTable"
+                   th:style="${#lists.isEmpty(bids) ? 'display:none;' : ''}">
+
+                <thead>
+                <tr>
+                    <th>Bidder</th>
+                    <th>Amount</th>
+                    <th>Time</th>
+                </tr>
+                </thead>
+
+                <tbody id="bidHistoryBody">
+
+                <tr th:each="bid, stat : ${bids}"
+                    th:attr="data-bid-id=${bid.id}"
+                    th:class="${stat.index == 0 ? 'leading-row' : ''}">
+
+                    <td>
+                        <span th:text="${bid.bidder.displayName}">
+                            Bidder name
+                        </span>
+
+                        <span th:if="${stat.index == 0}"
+                              class="leading-label">
+                            LEADING BIDDER
+                        </span>
+                    </td>
+
+                    <td>
+                        <span th:text="${auction.currency}">INR</span>
+                        <span th:text="${#numbers.formatDecimal(bid.amount, 1, 2)}">
+                            60.00
+                        </span>
+                    </td>
+
+                    <td th:text="${#temporals.format(bid.placedAt, 'dd MMM yyyy, HH:mm:ss')}">
+                        Bid time
+                    </td>
+
+                </tr>
+
+                </tbody>
+            </table>
+
+        </div>
+
+    </section>
+
+</main>
+
+<!-- WebSocket libraries -->
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.6.1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+
+<!-- Live bidding and countdown -->
+<script th:inline="javascript">
+
+    // ==========================================
+    // AUCTION COUNTDOWN
+    // ==========================================
+
+    const countdownElement =
+        document.getElementById('auctionCountdown');
+
+    const countdownMessage =
+        document.getElementById('auctionCountdownMessage');
+
+    // Read the formatted deadline from the HTML data attribute.
+    // This avoids serializing LocalDateTime through Jackson.
+    const auctionEndTimeText = countdownElement.dataset.endTime;
+
+    // Interpret the database time as browser-local time.
+    const auctionEndTime = new Date(
+        auctionEndTimeText.replace(' ', 'T')
+    ).getTime();
+
+    // Declare before the first countdown update.
+    let countdownInterval;
+
+    function updateAuctionCountdown() {
+
+        if (!Number.isFinite(auctionEndTime)) {
+            countdownElement.textContent = 'Unavailable';
+            countdownMessage.textContent =
+                'Could not read auction deadline.';
+
+            clearInterval(countdownInterval);
+            return;
+        }
+
+        const remaining = auctionEndTime - Date.now();
+
+        if (remaining <= 0) {
+            countdownElement.textContent = '00:00:00';
+            countdownElement.style.color = '#f87171';
+            countdownMessage.textContent = 'AUCTION ENDED';
+
+            clearInterval(countdownInterval);
+            return;
+        }
+
+        const days = Math.floor(
+            remaining / (1000 * 60 * 60 * 24)
+        );
+
+        const hours = Math.floor(
+            (remaining / (1000 * 60 * 60)) % 24
+        );
+
+        const minutes = Math.floor(
+            (remaining / (1000 * 60)) % 60
+        );
+
+        const seconds = Math.floor(
+            (remaining / 1000) % 60
+        );
+
+        countdownElement.textContent =
+            `${days}d ${String(hours).padStart(2, '0')}:` +
+            `${String(minutes).padStart(2, '0')}:` +
+            `${String(seconds).padStart(2, '0')}`;
+
+        countdownMessage.textContent =
+            'Time remaining until auction ends.';
+    }
+
+    // Run immediately, then every second.
+    updateAuctionCountdown();
+
+    countdownInterval = setInterval(
+        updateAuctionCountdown,
+        1000
+    );
+
+
+    // ==========================================
+    // WEBSOCKET LIVE BIDDING
+    // ==========================================
+
+    const auctionId = /*[[${auction.id}]]*/ 0;
+    const auctionCurrency = /*[[${auction.currency}]]*/ 'INR';
+
+    // Initialize last processed ID from existing history.
+    const existingRows = Array.from(
+        document.querySelectorAll('#bidHistoryBody tr')
+    );
+
+    const existingBidIds = existingRows
+        .map(row => Number(row.dataset.bidId))
+        .filter(id => Number.isSafeInteger(id) && id > 0);
+
+    let lastProcessedBidId = existingBidIds.length > 0
+        ? Math.max(...existingBidIds)
+        : 0;
+
+    console.log('Initial processed bid ID:', lastProcessedBidId);
+
+    const socket = new SockJS('/ws');
+    const stompClient = Stomp.over(socket);
+
+    stompClient.debug = function () {};
+
+    stompClient.connect({}, function () {
+
+        console.log('Connected to LiveBid WebSocket');
+
+        stompClient.subscribe(
+            '/topic/auctions/' + auctionId + '/bids',
+
+            function (message) {
+
+                let bid;
+
+                try {
+                    bid = JSON.parse(message.body);
+                } catch (error) {
+                    console.error('Invalid bid message:', error);
+                    return;
+                }
+
+                const bidId = Number(bid.bidId);
+                const amount = Number(bid.amount);
+                const totalBids = Number(bid.totalBids);
+
+                // Validate received message.
+                if (!Number.isSafeInteger(bidId) || bidId <= 0 ||
+                    !Number.isFinite(amount) || amount <= 0 ||
+                    !Number.isSafeInteger(totalBids) || totalBids < 1 ||
+                    typeof bid.bidderName !== 'string') {
+
+                    console.error('Invalid bid data:', bid);
+                    return;
+                }
+
+                // Ignore duplicate or older messages.
+                if (bidId <= lastProcessedBidId) {
+                    console.log('Duplicate or stale bid ignored:', bidId);
+                    return;
+                }
+
+                lastProcessedBidId = bidId;
+
+                console.log('New live bid received:', bid);
+
+                // Update highest bid.
+                document.getElementById('currentHighestBid').textContent =
+                    amount.toFixed(2);
+
+                // Update bid count.
+                document.getElementById('totalBids').textContent =
+                    totalBids;
+
+                // Update leading bidder.
+                document.getElementById('leadingBidder').textContent =
+                    bid.bidderName;
+
+                // Hide empty history message.
+                document.getElementById('noBidsMessage').style.display =
+                    'none';
+
+                // Display history table.
+                document.getElementById('bidHistoryTable').style.display =
+                    'table';
+
+                // Remove previous leading bidder highlights.
+                const rows = document.querySelectorAll(
+                    '#bidHistoryBody tr'
+                );
+
+                rows.forEach(function (row) {
+
+                    row.classList.remove('leading-row');
+
+                    const label = row.querySelector('.leading-label');
+
+                    if (label) {
+                        label.remove();
+                    }
+
+                });
+
+                // Create new bid row.
+                const row = document.createElement('tr');
+
+                row.classList.add('leading-row');
+                row.dataset.bidId = String(bidId);
+
+                const bidderCell = document.createElement('td');
+
+                const bidderName = document.createElement('span');
+                bidderName.textContent = bid.bidderName;
+
+                const leadingLabel = document.createElement('span');
+                leadingLabel.classList.add('leading-label');
+                leadingLabel.textContent = ' LEADING BIDDER';
+
+                bidderCell.appendChild(bidderName);
+                bidderCell.appendChild(leadingLabel);
+
+                const amountCell = document.createElement('td');
+                amountCell.textContent =
+                    auctionCurrency + ' ' + amount.toFixed(2);
+
+                const timeCell = document.createElement('td');
+
+                const placedAt = new Date(bid.placedAt);
+
+                timeCell.textContent =
+                    Number.isNaN(placedAt.getTime())
+                        ? 'Time unavailable'
+                        : placedAt.toLocaleString();
+
+                row.appendChild(bidderCell);
+                row.appendChild(amountCell);
+                row.appendChild(timeCell);
+
+                // Insert newest bid at the top.
+                const historyBody =
+                    document.getElementById('bidHistoryBody');
+
+                historyBody.prepend(row);
+
+                // Keep only latest 20 displayed bids.
+                while (historyBody.children.length > 20) {
+                    historyBody.removeChild(
+                        historyBody.lastElementChild
+                    );
+                }
+
+            }
+        );
+
+    }, function (error) {
+
+        console.error('WebSocket connection error:', error);
+
+    });
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,294 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#111827">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <title>LiveBid — Auctions, Live and Fair</title>
+
+    <style>
+
+        :root {
+            color-scheme: dark;
+            --bg: #0b1120;
+            --panel: #151e30;
+            --text: #f8fafc;
+            --muted: #9ca3b8;
+            --accent: #38bdf8;
+            --border: #28354a;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.6;
+        }
+
+        a { color: inherit; text-decoration: none; }
+
+        .container {
+            width: min(1100px, 92%);
+            margin: 0 auto;
+        }
+
+        header {
+            border-bottom: 1px solid var(--border);
+            background: #0b1120;
+        }
+
+        nav {
+            min-height: 76px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .logo span { color: var(--accent); }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+            color: var(--muted);
+        }
+
+        .button {
+            display: inline-block;
+            padding: 11px 18px;
+            border-radius: 9px;
+            background: var(--accent);
+            color: #082032;
+            font-weight: 700;
+        }
+
+        .hero {
+            padding: 82px 0 64px;
+            text-align: center;
+            background:
+                radial-gradient(ellipse at top, #15304a 0%, transparent 65%);
+        }
+
+        .eyebrow {
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: .8rem;
+            font-weight: 700;
+        }
+
+        h1 {
+            max-width: 760px;
+            margin: 16px auto;
+            font-size: clamp(2.4rem, 6vw, 4.5rem);
+            line-height: 1.08;
+            letter-spacing: -2px;
+        }
+
+        .hero p {
+            max-width: 600px;
+            margin: 20px auto 28px;
+            color: var(--muted);
+            font-size: 1.08rem;
+        }
+
+        .section-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 22px;
+        }
+
+        .section-heading h2 { margin: 0; }
+
+        .auction-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            padding-bottom: 70px;
+        }
+
+        .auction-card {
+            padding: 24px;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            background: var(--panel);
+        }
+
+        .auction-card h3 { margin: 12px 0 8px; }
+
+        .auction-card p {
+            color: var(--muted);
+            font-size: .94rem;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: #123c35;
+            color: #6ee7b7;
+            font-size: .78rem;
+            font-weight: 700;
+        }
+
+        .price-label {
+            margin-top: 20px;
+            color: var(--muted);
+            font-size: .85rem;
+        }
+
+        .price {
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            padding: 40px 24px;
+            border: 1px dashed var(--border);
+            border-radius: 16px;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 24px 0;
+            color: var(--muted);
+            text-align: center;
+            font-size: .9rem;
+        }
+
+        @media (max-width: 520px) {
+            nav { align-items: flex-start; padding: 18px 0; }
+            .nav-links { gap: 12px; font-size: .9rem; }
+            .hero { padding: 60px 0 45px; }
+            .section-heading { align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <nav class="container">
+        <a class="logo" th:href="@{/}">Live<span>Bid</span></a>
+
+
+        <div class="nav-links">
+            <a href="#auctions">Auctions</a>
+
+            <a th:if="${!isAuthenticated}"
+               th:href="@{/login}">Log in</a>
+
+            <a th:if="${!isAuthenticated}"
+               th:href="@{/register}">Register</a>
+
+            <form th:if="${isAuthenticated}"
+                  th:action="@{/logout}"
+                  method="post"
+                  style="display:inline">
+                <button type="submit"
+                        style="padding:10px 14px;border:0;border-radius:8px;
+                       background:#38bdf8;color:#082032;font-weight:bold;
+                       cursor:pointer">
+                    Log out
+                </button>
+            </form>
+        </div>
+
+
+    </nav>
+</header>
+
+<main>
+    <section class="hero">
+        <div class="container">
+            <div class="eyebrow">Discover. Bid. Win.</div>
+            <h1>Your next great find is one bid away.</h1>
+            <p>
+                Explore auctions, compete in real time, and find something
+                worth winning on LiveBid.
+            </p>
+            <a class="button" href="#auctions">Explore auctions ↓</a>
+        </div>
+    </section>
+
+    <section class="container" id="auctions">
+        <div class="section-heading">
+            <h2>Explore auctions</h2>
+            <span style="color: var(--muted)">Your next win starts here</span>
+        </div>
+
+
+        <div class="auction-grid">
+            <article class="auction-card" th:each="auction : ${auctions}">
+                <span class="status" th:text="${auction.status}">LIVE</span>
+
+                <h3 th:text="${auction.title}">Auction title</h3>
+
+                <p th:text="${auction.description != null and !auction.description.isBlank()
+            ? auction.description : 'Discover this auction on LiveBid.'}">
+                    Auction description
+                </p>
+
+                <div class="price-label">Starting price</div>
+
+                <div class="price">
+                    <span th:text="${auction.currency}">INR</span>
+                    <span th:text="${#numbers.formatDecimal(auction.startingPrice, 1, 2)}">
+                50.00
+            </span>
+                </div>
+
+                <p>
+                    Ends:
+                    <time th:text="${#temporals.format(auction.endsAt, 'dd MMM yyyy, HH:mm')}">
+                        Auction end time
+                    </time>
+                </p>
+
+                <a class="button"
+                   th:href="@{/auctions/{id}(id=${auction.id})}">
+                    View auction
+                </a>
+            </article>
+
+            <div class="empty-state" th:if="${#lists.isEmpty(auctions)}">
+                <h3>No auctions yet</h3>
+                <p>New opportunities will appear here when auctions are created.</p>
+            </div>
+        </div>
+
+        </div>
+    </section>
+</main>
+
+<footer>
+    <div class="container">
+        © 2026 LiveBid. Bid fairly. Win confidently by
+        <strong>Arbaz Khan</strong>
+        <a href="https://www.linkedin.com/in/arbazkhann/"
+           target="_blank"
+           rel="noopener noreferrer"
+           aria-label="Arbaz Khan's LinkedIn profile"
+           title="Visit my LinkedIn profile">
+            <i class="fa-brands fa-linkedin"></i>
+        </a>.
+    </div>
+</footer>
+</body>
+</html>
