@@ -898,6 +898,138 @@
         grid-template-columns: repeat(2, 1fr);
     }
 }
+
+        /* Mobile navigation */
+.mobile-menu-toggle {
+    display: none;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+@media (max-width: 760px) {
+
+    .navbar {
+        position: relative;
+        min-height: 78px;
+        flex-wrap: wrap;
+    }
+
+    .mobile-menu-toggle {
+        display: grid;
+        place-items: center;
+        margin-left: auto;
+    }
+
+    .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: 15px;
+        border: 1px solid var(--border);
+        border-radius: 0 0 16px 16px;
+        background: #0b1425;
+        box-shadow: 0 15px 30px rgba(0, 0, 0, .35);
+    }
+
+    .nav-links.is-open {
+        display: flex;
+    }
+
+    .nav-links > a {
+        display: block;
+        padding: 13px 10px;
+    }
+
+    .nav-actions {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        padding-top: 12px;
+        border-top: 1px solid var(--border);
+    }
+
+    .nav-actions > a,
+    .nav-actions form,
+    .nav-actions form button {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+    }
+
+    .nav-actions form {
+        display: block !important;
+    }
+
+    .nav-actions .login-link {
+        padding: 12px;
+    }
+
+    .nav-actions .nav-button {
+        padding: 13px;
+    }
+
+    .hero {
+        padding: 65px 0;
+    }
+
+    .hero h1 {
+        font-size: clamp(2.5rem, 10vw, 3.5rem);
+    }
+
+    .featured-card {
+        grid-template-columns: 1fr;
+    }
+
+    .auction-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .container {
+        width: 90%;
+    }
+}
+
+@media (max-width: 380px) {
+
+    .logo {
+        font-size: 1.3rem;
+    }
+
+    .logo-icon {
+        width: 36px;
+        height: 36px;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-actions {
+        flex-direction: column;
+    }
+
+    .hero-actions a {
+        width: 100%;
+    }
+}
+
     </style>
 </head>
 
@@ -913,9 +1045,16 @@
             </span>
             Live<span>Bid</span>
         </a>
+        <button class="mobile-menu-toggle"
+                type="button"
+                aria-label="Open navigation menu"
+                aria-expanded="false"
+                aria-controls="primary-navigation">
+            <i class="fa-solid fa-bars"></i>
+        </button>
 
         <!-- Navigation actions stay on the right -->
-        <div class="nav-links">
+        <div class="nav-links" id="primary-navigation">
             <a href="#auctions">Auctions</a>
 
             <div class="nav-actions">
@@ -1243,6 +1382,32 @@
 
     </div>
 </footer>
+<script>
+    const menuButton = document.querySelector('.mobile-menu-toggle');
+    const navigation = document.querySelector('#primary-navigation');
 
+    menuButton.addEventListener('click', function () {
+        const isOpen = navigation.classList.toggle('is-open');
+
+        menuButton.setAttribute('aria-expanded', isOpen);
+        menuButton.setAttribute(
+            'aria-label',
+            isOpen ? 'Close navigation menu' : 'Open navigation menu'
+        );
+
+        menuButton.innerHTML = isOpen
+            ? '<i class="fa-solid fa-xmark"></i>'
+            : '<i class="fa-solid fa-bars"></i>';
+    });
+
+    navigation.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', function () {
+            navigation.classList.remove('is-open');
+            menuButton.setAttribute('aria-expanded', 'false');
+            menuButton.setAttribute('aria-label', 'Open navigation menu');
+            menuButton.innerHTML = '<i class="fa-solid fa-bars"></i>';
+        });
+    });
+</script>
 </body>
 </html>
