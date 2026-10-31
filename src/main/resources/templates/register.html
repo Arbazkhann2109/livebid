@@ -4,150 +4,476 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Create Account | LiveBid</title>
-    <style>
-        * { box-sizing: border-box; }
+    <meta name="theme-color" content="#0b1120">
 
-        body {
+    <title>Create Account | LiveBid</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
             margin: 0;
-            min-height: 100vh;
-            display: grid;
-            place-items: center;
-            padding: 24px;
-            background: #0b1120;
-            color: #f8fafc;
-            font-family: Arial, Helvetica, sans-serif;
+            padding: 0;
         }
 
-        .card {
-            width: min(100%, 440px);
-            padding: 32px;
-            border: 1px solid #28354a;
-            border-radius: 18px;
-            background: #151e30;
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 35px 20px;
+            background:
+                radial-gradient(circle at 15% 15%, rgba(37, 99, 235, 0.16), transparent 35%),
+                radial-gradient(circle at 85% 85%, rgba(14, 165, 233, 0.12), transparent 35%),
+                #0b1120;
+            color: #f8fafc;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .page-wrapper {
+            width: 100%;
+            max-width: 1050px;
+            display: grid;
+            grid-template-columns: 1fr 0.85fr;
+            overflow: hidden;
+            border: 1px solid rgba(148, 163, 184, 0.15);
+            border-radius: 24px;
+            background: #111c32;
+            box-shadow: 0 30px 90px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Branding panel */
+
+        .brand-panel {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 48px;
+            overflow: hidden;
+            background:
+                linear-gradient(145deg, rgba(37, 99, 235, 0.25), transparent 65%),
+                #14223c;
+        }
+
+        .brand-panel::before {
+            content: "";
+            position: absolute;
+            width: 320px;
+            height: 320px;
+            right: -130px;
+            bottom: -120px;
+            border: 1px solid rgba(96, 165, 250, 0.25);
+            border-radius: 50%;
+            box-shadow:
+                0 0 0 35px rgba(96, 165, 250, 0.035),
+                0 0 0 70px rgba(96, 165, 250, 0.025);
         }
 
         .logo {
+            position: relative;
+            z-index: 1;
             color: #f8fafc;
-            font-size: 1.8rem;
-            font-weight: 800;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
             text-decoration: none;
         }
 
-        .logo span { color: #38bdf8; }
+        .logo span {
+            color: #38bdf8;
+        }
 
-        h1 { margin-top: 28px; }
+        .brand-content {
+            position: relative;
+            z-index: 1;
+            margin: 70px 0;
+        }
 
-        .muted { color: #9ca3b8; }
+        .brand-icon {
+            width: 68px;
+            height: 68px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 28px;
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            border-radius: 18px;
+            background: rgba(56, 189, 248, 0.1);
+            color: #38bdf8;
+            font-size: 1.8rem;
+        }
 
-        label {
+        .brand-content h1 {
+            max-width: 400px;
+            margin-bottom: 18px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(2.2rem, 4vw, 3.4rem);
+            line-height: 1.12;
+            letter-spacing: -1.5px;
+        }
+
+        .brand-content h1 span {
+            color: #38bdf8;
+        }
+
+        .brand-content p {
+            max-width: 390px;
+            color: #a8b6cc;
+            font-size: 1.02rem;
+            line-height: 1.8;
+        }
+
+        .brand-footer {
+            position: relative;
+            z-index: 1;
+            color: #8292aa;
+            font-size: 0.85rem;
+        }
+
+        /* Registration form */
+
+        .register-panel {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 48px;
+            background: #111c32;
+        }
+
+        .register-heading {
+            margin-bottom: 28px;
+        }
+
+        .register-heading h2 {
+            margin-bottom: 10px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            letter-spacing: -0.7px;
+        }
+
+        .register-heading p {
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+
+        .error {
+            margin-bottom: 20px;
+            padding: 14px;
+            border: 1px solid rgba(248, 113, 113, 0.3);
+            border-radius: 10px;
+            background: rgba(127, 29, 29, 0.25);
+            color: #fecaca;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
             display: block;
-            margin: 18px 0 7px;
+            margin-bottom: 9px;
+            color: #e2e8f0;
+            font-size: 0.9rem;
             font-weight: 600;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            top: 50%;
+            left: 15px;
+            transform: translateY(-50%);
+            color: #64748b;
         }
 
         input {
             width: 100%;
-            padding: 13px;
-            border: 1px solid #39475d;
-            border-radius: 9px;
+            padding: 14px 15px 14px 44px;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            outline: none;
             background: #0b1120;
             color: #f8fafc;
-            font-size: 1rem;
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
 
-        button {
-            width: 100%;
-            margin-top: 24px;
-            padding: 13px;
-            border: 0;
-            border-radius: 9px;
-            background: #38bdf8;
-            color: #082032;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
+        input::placeholder {
+            color: #64748b;
         }
 
-        .error {
-            margin-top: 16px;
-            padding: 12px;
-            border-radius: 8px;
-            background: #451a24;
-            color: #fecdd3;
+        input:focus {
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.12);
         }
 
         .field-error {
             display: block;
-            margin-top: 5px;
+            margin-top: 7px;
             color: #fca5a5;
-            font-size: .9rem;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        .register-button {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 8px;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #38bdf8, #2563eb);
+            color: #fff;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .register-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.25);
         }
 
         .bottom {
-            margin-top: 22px;
+            margin-top: 25px;
+            color: #94a3b8;
+            font-size: 0.92rem;
             text-align: center;
-            color: #9ca3b8;
         }
 
-        a { color: #38bdf8; }
+        .bottom a,
+        .back-link {
+            color: #38bdf8;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .bottom a:hover,
+        .back-link:hover {
+            color: #7dd3fc;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 26px;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 800px) {
+            .page-wrapper {
+                max-width: 500px;
+                grid-template-columns: 1fr;
+            }
+
+            .brand-panel {
+                min-height: 250px;
+                padding: 30px;
+            }
+
+            .brand-content {
+                margin: 35px 0;
+            }
+
+            .brand-content h1 {
+                font-size: 2rem;
+            }
+
+            .brand-content p {
+                font-size: 0.9rem;
+            }
+
+            .brand-footer {
+                display: none;
+            }
+
+            .register-panel {
+                padding: 38px 30px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 15px;
+            }
+
+            .page-wrapper {
+                border-radius: 18px;
+            }
+
+            .brand-panel {
+                min-height: 220px;
+                padding: 25px;
+            }
+
+            .brand-content {
+                margin: 25px 0 5px;
+            }
+
+            .brand-icon {
+                width: 52px;
+                height: 52px;
+                margin-bottom: 18px;
+                font-size: 1.4rem;
+            }
+
+            .brand-content h1 {
+                font-size: 1.75rem;
+            }
+
+            .register-panel {
+                padding: 32px 24px;
+            }
+
+            .register-heading h2 {
+                font-size: 1.7rem;
+            }
+        }
     </style>
 </head>
+
 <body>
-<main class="card">
-    <a class="logo" th:href="@{/}">Live<span>Bid</span></a>
 
-    <h1>Create your account</h1>
-    <p class="muted">Join LiveBid and discover your next great find.</p>
+<main class="page-wrapper">
 
-    <div class="error"
-         th:if="${registrationError}"
-         th:text="${registrationError}"
-         role="alert"></div>
+    <section class="brand-panel">
+        <a class="logo" th:href="@{/}">
+            Live<span>Bid</span>
+        </a>
 
-    <form th:action="@{/register}"
-          th:object="${registration}"
-          method="post">
+        <div class="brand-content">
+            <div class="brand-icon">
+                <i class="fa-solid fa-user-plus"></i>
+            </div>
 
-        <label for="displayName">Display name</label>
-        <input id="displayName"
-               type="text"
-               th:field="*{displayName}"
-               maxlength="100"
-               autocomplete="name"
-               required>
-        <span class="field-error"
-              th:if="${#fields.hasErrors('displayName')}"
-              th:errors="*{displayName}"></span>
+            <h1>
+                Your next great find starts <span>here.</span>
+            </h1>
 
-        <label for="email">Email address</label>
-        <input id="email"
-               type="email"
-               th:field="*{email}"
-               maxlength="254"
-               autocomplete="email"
-               required>
-        <span class="field-error"
-              th:if="${#fields.hasErrors('email')}"
-              th:errors="*{email}"></span>
+            <p>
+                Join the LiveBid community. Discover unique auctions,
+                place competitive bids, and enjoy every moment.
+            </p>
+        </div>
 
-        <label for="password">Password</label>
-        <input id="password"
-               type="password"
-               th:field="*{password}"
-               autocomplete="new-password"
-               required>
-        <span class="field-error"
-              th:if="${#fields.hasErrors('password')}"
-              th:errors="*{password}"></span>
+        <div class="brand-footer">
+            © 2026 LiveBid. All rights reserved.
+        </div>
+    </section>
 
-        <button type="submit">Create account</button>
-    </form>
+    <section class="register-panel">
 
-    <p class="bottom">
-        Already registered?
-        <a th:href="@{/login}">Log in</a>
-    </p>
+        <div class="register-heading">
+            <h2>Create account</h2>
+            <p>Join LiveBid and start exploring auctions.</p>
+        </div>
+
+        <div class="error"
+             th:if="${registrationError}"
+             th:text="${registrationError}"
+             role="alert"></div>
+
+        <form th:action="@{/register}"
+              th:object="${registration}"
+              method="post">
+
+            <div class="form-group">
+                <label for="displayName">Display name</label>
+
+                <div class="input-wrapper">
+                    <i class="fa-regular fa-user"></i>
+
+                    <input
+                            id="displayName"
+                            type="text"
+                            th:field="*{displayName}"
+                            placeholder="Enter your name"
+                            maxlength="100"
+                            autocomplete="name"
+                            required>
+                </div>
+
+                <span class="field-error"
+                      th:if="${#fields.hasErrors('displayName')}"
+                      th:errors="*{displayName}"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email address</label>
+
+                <div class="input-wrapper">
+                    <i class="fa-regular fa-envelope"></i>
+
+                    <input
+                            id="email"
+                            type="email"
+                            th:field="*{email}"
+                            placeholder="you@example.com"
+                            maxlength="254"
+                            autocomplete="email"
+                            required>
+                </div>
+
+                <span class="field-error"
+                      th:if="${#fields.hasErrors('email')}"
+                      th:errors="*{email}"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-lock"></i>
+
+                    <input
+                            id="password"
+                            type="password"
+                            th:field="*{password}"
+                            placeholder="Create a password"
+                            autocomplete="new-password"
+                            required>
+                </div>
+
+                <span class="field-error"
+                      th:if="${#fields.hasErrors('password')}"
+                      th:errors="*{password}"></span>
+            </div>
+
+            <button class="register-button" type="submit">
+                Create account
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+
+        </form>
+
+        <p class="bottom">
+            Already registered?
+            <a th:href="@{/login}">Log in</a>
+        </p>
+
+        <a class="back-link" th:href="@{/}">
+            <i class="fa-solid fa-arrow-left"></i>
+            Back to LiveBid
+        </a>
+
+    </section>
+
 </main>
+
 </body>
 </html>

@@ -21,8 +21,8 @@ public class SecurityConfig {
     ) throws Exception {
 
         http
-                // Development only. Enable CSRF before production deployment.
-                .csrf(csrf -> csrf.disable())
+                // CSRF protection is enabled by default.
+                // Keep it enabled for browser and session-authenticated requests.
 
                 .authenticationProvider(authenticationProvider)
 

@@ -3,9 +3,11 @@ package com.livebid.auction.service;
 
 import com.livebid.auction.entity.Auction;
 import com.livebid.auction.repository.AuctionRepository;
+import com.livebid.bidding.repository.BidRepository;
 import com.livebid.common.exception.ResourceNotFoundException;
 import com.livebid.user.entity.User;
 import com.livebid.user.service.UserService;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
@@ -25,13 +28,16 @@ public class AuctionService {
 
     private final AuctionRepository auctionRepository;
     private final UserService userService;
+    private final BidRepository bidRepository;
 
     public AuctionService(
             AuctionRepository auctionRepository,
-            UserService userService
+            UserService userService,
+            BidRepository bidRepository
     ) {
         this.auctionRepository = auctionRepository;
         this.userService = userService;
+        this.bidRepository = bidRepository;
     }
 
     public Auction getById(Long id) {
@@ -45,7 +51,32 @@ public class AuctionService {
     }
 
     public Page<Auction> getAuctions(Pageable pageable) {
-        return auctionRepository.findAll(pageable);
+        return getPublicAuctions(pageable);
+    }
+
+    public Page<Auction> getPublicAuctions(Pageable pageable) {
+        return auctionRepository.findByStatusIn(
+                List.of("SCHEDULED", "LIVE", "ENDED"),
+                pageable
+        );
+    }
+
+    public Page<Auction> getMyAuctions(Long sellerId, Pageable pageable) {
+        if (sellerId == null || sellerId <= 0) {
+            throw new IllegalArgumentException("Seller ID must be positive.");
+        }
+
+        return auctionRepository.findBySellerId(sellerId, pageable);
+    }
+
+    private void selectWinner(Auction auction) {
+        var winningBid = bidRepository
+                .findFirstByAuctionIdOrderByAmountDescPlacedAtAscIdAsc(
+                        auction.getId()
+                )
+                .orElse(null);
+
+        auction.setWinningBid(winningBid);
     }
 
     @Transactional
@@ -61,18 +92,23 @@ public class AuctionService {
         if (sellerId == null || sellerId <= 0) {
             throw new IllegalArgumentException("Seller ID must be positive.");
         }
+
         if (title == null || title.isBlank() || title.trim().length() > 200) {
             throw new IllegalArgumentException("Title must contain 1–200 characters.");
         }
+
         if (startingPrice == null || startingPrice.signum() < 0
                 || startingPrice.scale() > 2
                 || startingPrice.precision() > 13) {
-            throw new IllegalArgumentException("Starting price must be non-negative with at most 2 decimal places.");
+            throw new IllegalArgumentException(
+                    "Starting price must be non-negative with at most 2 decimal places.");
         }
+
         if (currency == null || !SUPPORTED_CURRENCIES.contains(
                 currency.trim().toUpperCase(Locale.ROOT))) {
             throw new IllegalArgumentException("Unsupported currency.");
         }
+
         if (startsAt == null || endsAt == null || !endsAt.isAfter(startsAt)) {
             throw new IllegalArgumentException("End time must be after start time.");
         }
@@ -96,20 +132,16 @@ public class AuctionService {
         return auctionRepository.save(auction);
     }
 
-
     @Transactional
     public Auction scheduleAuction(Long auctionId, Long sellerId) {
         if (auctionId == null || auctionId <= 0) {
-            throw new IllegalArgumentException(
-                    "Auction ID must be positive.");
+            throw new IllegalArgumentException("Auction ID must be positive.");
         }
 
         if (sellerId == null || sellerId <= 0) {
-            throw new IllegalArgumentException(
-                    "Seller ID must be positive.");
+            throw new IllegalArgumentException("Seller ID must be positive.");
         }
 
-        // Lock the auction row to prevent concurrent state transitions.
         Auction auction = auctionRepository.findByIdForUpdate(auctionId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
@@ -137,7 +169,6 @@ public class AuctionService {
         return auctionRepository.save(auction);
     }
 
-
     @Transactional
     public void activateScheduledAuction(Long auctionId) {
         Auction auction = auctionRepository.findByIdForUpdate(auctionId)
@@ -152,8 +183,8 @@ public class AuctionService {
             return;
         }
 
-        // If the entire auction window has passed, do not activate it.
         if (!auction.getEndsAt().isAfter(now)) {
+            selectWinner(auction);
             auction.setStatus("ENDED");
         } else {
             auction.setStatus("LIVE");
@@ -171,10 +202,11 @@ public class AuctionService {
 
         if ("LIVE".equals(auction.getStatus())
                 && !auction.getEndsAt().isAfter(LocalDateTime.now())) {
+
+            selectWinner(auction);
             auction.setStatus("ENDED");
+
             auctionRepository.save(auction);
         }
     }
-
-
 }

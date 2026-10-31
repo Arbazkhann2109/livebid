@@ -1,0 +1,640 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0b1120">
+
+    <title>My Auctions | LiveBid</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 10% 10%, rgba(37, 99, 235, 0.12), transparent 35%),
+                #0b1120;
+            color: #f8fafc;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .navbar {
+            min-height: 85px;
+            padding: 0 6%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+            background: #0b1120;
+        }
+
+        .logo {
+            color: #f8fafc;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .logo span {
+            color: #38bdf8;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+        }
+
+        .nav-link {
+            color: #cbd5e1;
+            font-size: 0.9rem;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .nav-link:hover {
+            color: #38bdf8;
+        }
+
+        .create-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            padding: 12px 18px;
+            border-radius: 9px;
+            background: linear-gradient(135deg, #38bdf8, #2563eb);
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .container {
+            width: min(1150px, calc(100% - 40px));
+            margin: 50px auto 80px;
+        }
+
+        .page-heading {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .eyebrow {
+            margin-bottom: 12px;
+            color: #38bdf8;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .page-heading h1 {
+            margin-bottom: 10px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(2rem, 5vw, 2.7rem);
+            letter-spacing: -1px;
+        }
+
+        .page-heading p {
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+
+        /* Statistics */
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            padding: 20px;
+            border: 1px solid rgba(148, 163, 184, 0.13);
+            border-radius: 13px;
+            background: #111c32;
+        }
+
+        .stat-card p {
+            margin-bottom: 10px;
+            color: #94a3b8;
+            font-size: 0.83rem;
+        }
+
+        .stat-card h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.9rem;
+        }
+
+        .stat-card.total h2 { color: #f8fafc; }
+        .stat-card.draft h2 { color: #a78bfa; }
+        .stat-card.scheduled h2 { color: #38bdf8; }
+        .stat-card.live h2 { color: #4ade80; }
+        .stat-card.ended h2 { color: #f87171; }
+
+        /* Filters */
+
+        .filter-card {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 25px;
+            padding: 15px;
+            border: 1px solid rgba(148, 163, 184, 0.13);
+            border-radius: 13px;
+            background: #111c32;
+        }
+
+        .filter-label {
+            margin-right: 8px;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .filter-link {
+            padding: 9px 15px;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: #cbd5e1;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+
+        .filter-link:hover,
+        .filter-link.active {
+            border-color: #38bdf8;
+            background: rgba(56, 189, 248, 0.1);
+            color: #38bdf8;
+        }
+
+        /* Auction cards */
+
+        .auction-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .auction-card {
+            padding: 25px;
+            border: 1px solid rgba(148, 163, 184, 0.13);
+            border-radius: 15px;
+            background: #111c32;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .auction-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(56, 189, 248, 0.4);
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .auction-id {
+            color: #64748b;
+            font-size: 0.78rem;
+        }
+
+        .status {
+            padding: 6px 11px;
+            border-radius: 30px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        .status.draft {
+            background: rgba(167, 139, 250, 0.12);
+            color: #c4b5fd;
+        }
+
+        .status.scheduled {
+            background: rgba(56, 189, 248, 0.12);
+            color: #7dd3fc;
+        }
+
+        .status.live {
+            background: rgba(74, 222, 128, 0.12);
+            color: #86efac;
+        }
+
+        .status.ended {
+            background: rgba(248, 113, 113, 0.12);
+            color: #fca5a5;
+        }
+
+        .status.cancelled {
+            background: rgba(148, 163, 184, 0.12);
+            color: #cbd5e1;
+        }
+
+        .auction-card h3 {
+            margin-bottom: 10px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.25rem;
+            overflow-wrap: anywhere;
+        }
+
+        .description {
+            min-height: 44px;
+            margin-bottom: 20px;
+            color: #94a3b8;
+            font-size: 0.87rem;
+            line-height: 1.6;
+        }
+
+        .price-box {
+            margin-bottom: 18px;
+            padding: 15px;
+            border-radius: 10px;
+            background: #0b1120;
+        }
+
+        .price-box p {
+            margin-bottom: 6px;
+            color: #94a3b8;
+            font-size: 0.78rem;
+        }
+
+        .price-box strong {
+            color: #38bdf8;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.35rem;
+        }
+
+        .auction-dates {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .date-item {
+            min-width: 0;
+            color: #94a3b8;
+            font-size: 0.76rem;
+            line-height: 1.6;
+            overflow-wrap: anywhere;
+        }
+
+        .date-item i {
+            margin-right: 5px;
+            color: #38bdf8;
+        }
+
+        .card-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 9px;
+            color: #38bdf8;
+            font-size: 0.88rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+
+        .card-button:hover {
+            background: rgba(56, 189, 248, 0.1);
+        }
+
+        /* Empty state */
+
+        .empty-state {
+            grid-column: 1 / -1;
+            padding: 65px 25px;
+            border: 1px dashed #334155;
+            border-radius: 15px;
+            background: #111c32;
+            text-align: center;
+        }
+
+        .empty-state i {
+            margin-bottom: 20px;
+            color: #38bdf8;
+            font-size: 2.8rem;
+        }
+
+        .empty-state h2 {
+            margin-bottom: 10px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .empty-state p {
+            margin-bottom: 22px;
+            color: #94a3b8;
+        }
+
+        @media (max-width: 900px) {
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 650px) {
+            .navbar {
+                min-height: 72px;
+                padding: 0 20px;
+            }
+
+            .logo {
+                font-size: 1.7rem;
+            }
+
+            .nav-actions {
+                gap: 12px;
+            }
+
+            .nav-link {
+                display: none;
+            }
+
+            .create-button {
+                padding: 10px 12px;
+                font-size: 0.8rem;
+            }
+
+            .container {
+                margin-top: 35px;
+            }
+
+            .page-heading {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .auction-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 9px;
+            }
+
+            .stat-card {
+                padding: 15px;
+            }
+
+            .filter-link {
+                padding: 8px 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="navbar">
+
+    <a th:href="@{/}" class="logo">
+        Live<span>Bid</span>
+    </a>
+
+    <div class="nav-actions">
+
+        <a th:href="@{/}" class="nav-link">
+            Home
+        </a>
+
+        <a th:href="@{/auctions/new}" class="create-button">
+            <i class="fa-solid fa-plus"></i>
+            Create Auction
+        </a>
+
+    </div>
+
+</header>
+
+<main class="container">
+
+    <section class="page-heading">
+
+        <div>
+            <div class="eyebrow">
+                <i class="fa-solid fa-chart-line"></i>
+                Seller Dashboard
+            </div>
+
+            <h1>My Auctions</h1>
+
+            <p>
+                Manage your listings, track auction progress,
+                and see what's happening with your auctions.
+            </p>
+        </div>
+
+    </section>
+
+    <!-- Statistics -->
+
+    <section class="stats-grid">
+
+        <div class="stat-card total">
+            <p>Total Auctions</p>
+            <h2 th:text="${totalAuctions}">0</h2>
+        </div>
+
+        <div class="stat-card draft">
+            <p>Draft</p>
+            <h2 th:text="${draftCount}">0</h2>
+        </div>
+
+        <div class="stat-card scheduled">
+            <p>Scheduled</p>
+            <h2 th:text="${scheduledCount}">0</h2>
+        </div>
+
+        <div class="stat-card live">
+            <p>Live</p>
+            <h2 th:text="${liveCount}">0</h2>
+        </div>
+
+        <div class="stat-card ended">
+            <p>Ended</p>
+            <h2 th:text="${endedCount}">0</h2>
+        </div>
+
+    </section>
+
+    <!-- Status filters -->
+
+    <section class="filter-card">
+
+        <span class="filter-label">
+            <i class="fa-solid fa-filter"></i>
+            Filter:
+        </span>
+
+        <a th:href="@{/my-auctions(status='ALL')}"
+           class="filter-link"
+           th:classappend="${selectedStatus == 'ALL'} ? ' active' : ''">
+            All
+        </a>
+
+        <a th:href="@{/my-auctions(status='DRAFT')}"
+           class="filter-link"
+           th:classappend="${selectedStatus == 'DRAFT'} ? ' active' : ''">
+            Draft
+        </a>
+
+        <a th:href="@{/my-auctions(status='SCHEDULED')}"
+           class="filter-link"
+           th:classappend="${selectedStatus == 'SCHEDULED'} ? ' active' : ''">
+            Scheduled
+        </a>
+
+        <a th:href="@{/my-auctions(status='LIVE')}"
+           class="filter-link"
+           th:classappend="${selectedStatus == 'LIVE'} ? ' active' : ''">
+            Live
+        </a>
+
+        <a th:href="@{/my-auctions(status='ENDED')}"
+           class="filter-link"
+           th:classappend="${selectedStatus == 'ENDED'} ? ' active' : ''">
+            Ended
+        </a>
+
+        <a th:href="@{/my-auctions(status='CANCELLED')}"
+           class="filter-link"
+           th:classappend="${selectedStatus == 'CANCELLED'} ? ' active' : ''">
+            Cancelled
+        </a>
+
+    </section>
+
+    <!-- Auction cards -->
+
+    <section class="auction-grid">
+
+        <article class="auction-card"
+                 th:each="auction : ${auctions}">
+
+            <div class="card-top">
+
+                <span class="auction-id"
+                      th:text="'Auction #' + ${auction.id}">
+                    Auction #1
+                </span>
+
+                <span class="status"
+                      th:classappend="${#strings.toLowerCase(auction.status)}"
+                      th:text="${auction.status}">
+                    LIVE
+                </span>
+
+            </div>
+
+            <h3 th:text="${auction.title}">
+                Auction title
+            </h3>
+
+            <p class="description"
+               th:text="${auction.description != null and !auction.description.isBlank()
+                    ? auction.description
+                    : 'No description provided.'}">
+                Auction description
+            </p>
+
+            <div class="price-box">
+
+                <p>Starting Price</p>
+
+                <strong>
+                    <span th:text="${auction.currency}">INR</span>
+                    <span th:text="${#numbers.formatDecimal(auction.startingPrice, 1, 2)}">
+                        0.00
+                    </span>
+                </strong>
+
+            </div>
+
+            <div class="auction-dates">
+
+                <div class="date-item">
+                    <i class="fa-regular fa-calendar-check"></i>
+                    <strong>Starts</strong><br>
+                    <span th:text="${auction.startsAt}">Start date</span>
+                </div>
+
+                <div class="date-item">
+                    <i class="fa-regular fa-calendar-xmark"></i>
+                    <strong>Ends</strong><br>
+                    <span th:text="${auction.endsAt}">End date</span>
+                </div>
+
+            </div>
+
+            <a th:href="@{/auctions/{id}(id=${auction.id})}"
+               class="card-button">
+
+                View Auction Details
+                <i class="fa-solid fa-arrow-right"></i>
+
+            </a>
+
+        </article>
+
+        <!-- Empty state -->
+
+        <div class="empty-state" th:if="${#lists.isEmpty(auctions)}">
+
+            <i class="fa-solid fa-box-open"></i>
+
+            <h2>No auctions found</h2>
+
+            <p>
+                You don't have any auctions in this category yet.
+            </p>
+
+            <a th:href="@{/auctions/new}" class="create-button">
+                <i class="fa-solid fa-plus"></i>
+                Create Your First Auction
+            </a>
+
+        </div>
+
+    </section>
+
+</main>
+
+</body>
+</html>

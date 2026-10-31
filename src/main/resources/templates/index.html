@@ -4,140 +4,546 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#111827">
+    <meta name="theme-color" content="#080d19">
+
+    <title>LiveBid — Discover. Bid. Win.</title>
+    <meta name="description"
+          content="Discover exciting auctions, compete in real time, and find something worth winning on LiveBid.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+          rel="stylesheet">
+
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <title>LiveBid — Auctions, Live and Fair</title>
 
     <style>
-
         :root {
             color-scheme: dark;
-            --bg: #0b1120;
-            --panel: #151e30;
-            --text: #f8fafc;
-            --muted: #9ca3b8;
-            --accent: #38bdf8;
-            --border: #28354a;
+            --bg: #080d19;
+            --surface: #101827;
+            --surface-light: #162237;
+            --surface-hover: #1b2a43;
+            --text: #f4f7ff;
+            --muted: #94a3b8;
+            --accent: #55a8ff;
+            --accent-bright: #79bdff;
+            --border: rgba(148, 163, 184, .14);
+            --success: #34d399;
+            --radius: 20px;
+            --container: 1160px;
         }
 
-        * { box-sizing: border-box; }
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 100px;
+        }
 
         body {
             margin: 0;
-            background: var(--bg);
+            min-height: 100vh;
+            background:
+                radial-gradient(ellipse at 50% -25%, rgba(37, 99, 235, .16), transparent 55%),
+                var(--bg);
             color: var(--text);
-            font-family: Arial, Helvetica, sans-serif;
+            font-family: 'DM Sans', sans-serif;
             line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
         }
 
-        a { color: inherit; text-decoration: none; }
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button {
+            font: inherit;
+        }
 
         .container {
-            width: min(1100px, 92%);
+            width: min(var(--container), 92%);
             margin: 0 auto;
         }
 
-        header {
-            border-bottom: 1px solid var(--border);
-            background: #0b1120;
+        /* Navigation */
+
+        .site-header {
+            position: relative;
+            z-index: 100;
+            background: #0b1425;
+            border-bottom: 1px solid rgba(148, 163, 184, .18);
         }
 
-        nav {
-            min-height: 76px;
+        .navbar {
+            min-height: 105px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 20px;
+            gap: 30px;
         }
 
         .logo {
-            font-size: 1.5rem;
-            font-weight: 800;
-            letter-spacing: -1px;
+            display: inline-flex;
+            align-items: center;
+            gap: 13px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -1.3px;
+            white-space: nowrap;
         }
 
-        .logo span { color: var(--accent); }
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            display: grid;
+            place-items: center;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #287bd5, #65b7ff);
+            color: white;
+            font-size: 1.3rem;
+            box-shadow: 0 5px 22px rgba(59, 130, 246, .28);
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
 
         .nav-links {
             display: flex;
             align-items: center;
-            gap: 22px;
+            gap: 30px;
             color: var(--muted);
+            font-size: 1rem;
+            font-weight: 600;
         }
 
-        .button {
-            display: inline-block;
-            padding: 11px 18px;
-            border-radius: 9px;
-            background: var(--accent);
-            color: #082032;
-            font-weight: 700;
+        .nav-links a:not(.nav-button):hover {
+            color: white;
         }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .nav-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 13px 20px;
+            border-radius: 10px;
+            background: var(--accent);
+            color: #071426;
+            font-size: .95rem;
+            font-weight: 700;
+            transition: .2s ease;
+            white-space: nowrap;
+        }
+
+        .nav-button:hover,
+        .primary-button:hover {
+            background: var(--accent-bright);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(59, 130, 246, .2);
+        }
+
+        .login-link {
+            color: var(--text);
+        }
+
+        .logout-button {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--surface);
+            color: var(--text);
+            padding: 13px 18px;
+            cursor: pointer;
+            font-size: .95rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .logout-button:hover {
+            background: var(--surface-hover);
+        }
+
+        /* Hero */
 
         .hero {
-            padding: 82px 0 64px;
+            position: relative;
+            overflow: hidden;
+            padding: 105px 0 95px;
+        }
+
+        .hero::before {
+            content: "";
+            position: absolute;
+            width: 460px;
+            height: 460px;
+            top: -200px;
+            right: -100px;
+            background: rgba(37, 99, 235, .13);
+            filter: blur(100px);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 850px;
+            margin: 0 auto;
             text-align: center;
-            background:
-                radial-gradient(ellipse at top, #15304a 0%, transparent 65%);
         }
 
         .eyebrow {
-            color: var(--accent);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-size: .8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            padding: 7px 14px;
+            border: 1px solid rgba(85, 168, 255, .25);
+            border-radius: 999px;
+            background: rgba(37, 99, 235, .09);
+            color: var(--accent-bright);
+            font-size: .76rem;
             font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
         }
 
-        h1 {
-            max-width: 760px;
-            margin: 16px auto;
-            font-size: clamp(2.4rem, 6vw, 4.5rem);
-            line-height: 1.08;
-            letter-spacing: -2px;
+        .eyebrow-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--success);
+            box-shadow: 0 0 12px var(--success);
         }
 
-        .hero p {
-            max-width: 600px;
-            margin: 20px auto 28px;
+        h1, h2, h3 {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .hero h1 {
+            max-width: 850px;
+            margin: 25px auto 18px;
+            font-size: clamp(2.8rem, 6.5vw, 5.2rem);
+            font-weight: 700;
+            line-height: 1.07;
+            letter-spacing: -3px;
+        }
+
+        .hero h1 span {
+            background: linear-gradient(100deg, #55a8ff, #a5d8ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .hero-description {
+            max-width: 610px;
+            margin: 0 auto;
             color: var(--muted);
             font-size: 1.08rem;
+            line-height: 1.8;
         }
 
-        .section-heading {
+        .hero-actions {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-top: 32px;
+        }
+
+        .primary-button,
+        .secondary-button {
+            min-height: 50px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 13px 23px;
+            border-radius: 11px;
+            font-weight: 700;
+            transition: .2s ease;
+        }
+
+        .primary-button {
+            background: var(--accent);
+            color: #071426;
+        }
+
+        .secondary-button {
+            border: 1px solid var(--border);
+            background: rgba(16, 24, 39, .65);
+            color: var(--text);
+        }
+
+        .secondary-button:hover {
+            border-color: var(--accent);
+            background: var(--surface-light);
+        }
+
+        .hero-features {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 25px;
+            margin-top: 42px;
+            color: var(--muted);
+            font-size: .88rem;
+        }
+
+        .hero-features span {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hero-features i {
+            color: var(--success);
+        }
+
+        /* Auctions section */
+
+
+/* Featured Auction */
+
+.featured-section {
+    padding: 55px 0;
+    background: linear-gradient(
+        135deg,
+        rgba(37, 99, 235, .12),
+        rgba(16, 24, 39, .35)
+    );
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+}
+
+.featured-card {
+    display: grid;
+    grid-template-columns: 1.3fr .7fr;
+    gap: 35px;
+    align-items: center;
+    padding: 38px;
+    border: 1px solid rgba(85, 168, 255, .3);
+    border-radius: 22px;
+    background: linear-gradient(145deg, #172943, #0e1727);
+    box-shadow: 0 20px 55px rgba(0, 0, 0, .2);
+}
+
+.featured-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 18px;
+    color: var(--accent-bright);
+    font-size: .78rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.featured-label i {
+    color: #fbbf24;
+}
+
+.featured-card h2 {
+    margin: 0 0 13px;
+    font-size: clamp(1.8rem, 4vw, 2.7rem);
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+}
+
+.featured-description {
+    margin: 0;
+    color: var(--muted);
+    font-size: .98rem;
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+}
+
+.featured-price-box {
+    padding: 25px;
+    border: 1px solid var(--border);
+    border-radius: 17px;
+    background: rgba(8, 13, 25, .55);
+}
+
+.featured-price-label {
+    color: var(--muted);
+    font-size: .85rem;
+}
+
+.featured-price {
+    margin: 8px 0 20px;
+    color: white;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.featured-price span {
+    color: var(--accent-bright);
+    font-size: 1rem;
+}
+
+.featured-end {
+    margin-bottom: 20px;
+    color: var(--muted);
+    font-size: .85rem;
+}
+
+.featured-button {
+    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    background: var(--accent);
+    color: #071426;
+    font-weight: 800;
+    transition: .2s ease;
+}
+
+.featured-button:hover {
+    background: var(--accent-bright);
+    transform: translateY(-2px);
+}
+
+.featured-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 16px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: #123c35;
+    color: #6ee7b7;
+    font-size: .78rem;
+    font-weight: 800;
+}
+
+.featured-status::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+@media (max-width: 700px) {
+    .featured-card {
+        grid-template-columns: 1fr;
+        padding: 24px;
+        gap: 25px;
+    }
+
+    .featured-price-box {
+        padding: 20px;
+    }
+}
+
+
+        .auctions-section {
+            padding: 55px 0 100px;
+            border-top: 1px solid var(--border);
+            background: rgba(16, 24, 39, .32);
+        }
+
+        .section-top {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 22px;
+            align-items: flex-end;
+            gap: 20px;
+            margin-bottom: 30px;
         }
 
-        .section-heading h2 { margin: 0; }
+        .section-kicker {
+            margin: 0 0 7px;
+            color: var(--accent);
+            font-size: .76rem;
+            font-weight: 700;
+            letter-spacing: 1.8px;
+            text-transform: uppercase;
+        }
+
+        .section-top h2 {
+            margin: 0;
+            font-size: clamp(1.8rem, 4vw, 2.45rem);
+            letter-spacing: -1.3px;
+        }
+
+        .section-subtitle {
+            margin: 7px 0 0;
+            color: var(--muted);
+            font-size: .95rem;
+        }
+
+        .section-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            color: var(--accent-bright);
+            font-size: .9rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .section-link:hover {
+            color: white;
+        }
 
         .auction-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 20px;
-            padding-bottom: 70px;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 22px;
         }
 
         .auction-card {
-            padding: 24px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            padding: 25px;
             border: 1px solid var(--border);
-            border-radius: 16px;
-            background: var(--panel);
+            border-radius: var(--radius);
+            background: linear-gradient(145deg, #142035, #0e1727);
+            transition: transform .25s ease, border-color .25s ease,
+                        box-shadow .25s ease;
         }
 
-        .auction-card h3 { margin: 12px 0 8px; }
-
-        .auction-card p {
-            color: var(--muted);
-            font-size: .94rem;
+        .auction-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(85, 168, 255, .5);
+            box-shadow: 0 18px 45px rgba(0, 0, 0, .24);
         }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 19px;
+        }
+
+        /* Auction status colors */
 
         .status {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
             padding: 4px 10px;
             border-radius: 999px;
             background: #123c35;
@@ -146,149 +552,697 @@
             font-weight: 700;
         }
 
+        .status.draft {
+            background: rgba(156, 163, 175, .12);
+            color: #9ca3af;
+        }
+
+        .status.scheduled {
+            background: rgba(251, 146, 60, .12);
+            color: #fb923c;
+        }
+
+        .status.live {
+            background: #123c35;
+            color: #6ee7b7;
+        }
+
+        .status.ended,
+        .status.cancelled {
+            background: rgba(248, 113, 113, .12);
+            color: #f87171;
+        }
+
+        .status::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .card-icon {
+            width: 36px;
+            height: 36px;
+            display: grid;
+            place-items: center;
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            color: var(--accent);
+            background: rgba(85, 168, 255, .07);
+        }
+
+        .auction-card h3 {
+            margin: 0 0 9px;
+            font-size: 1.2rem;
+            line-height: 1.4;
+            letter-spacing: -.3px;
+            overflow-wrap: anywhere;
+        }
+
+        .auction-description {
+            min-height: 52px;
+            margin: 0;
+            color: var(--muted);
+            font-size: .9rem;
+            line-height: 1.65;
+            overflow-wrap: anywhere;
+        }
+
+        .card-divider {
+            height: 1px;
+            margin: 22px 0 18px;
+            background: var(--border);
+        }
+
         .price-label {
-            margin-top: 20px;
+            margin-bottom: 5px;
+            color: var(--muted);
+            font-size: .8rem;
+        }
+
+        .price {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -.7px;
+        }
+
+        .price-currency {
+            margin-right: 5px;
+            color: var(--accent-bright);
+            font-size: .95rem;
+            font-weight: 700;
+        }
+
+        .auction-end {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            margin: 18px 0 22px;
+            color: var(--muted);
+            font-size: .83rem;
+        }
+
+        .auction-end i {
+            color: var(--accent);
+        }
+
+        .auction-end time {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .card-button {
+            width: 100%;
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px 16px;
+            border: 1px solid rgba(85, 168, 255, .28);
+            border-radius: 10px;
+            background: rgba(85, 168, 255, .1);
+            color: var(--accent-bright);
+            font-size: .9rem;
+            font-weight: 700;
+            transition: .2s ease;
+        }
+
+        .card-button:hover {
+            background: var(--accent);
+            color: #071426;
+            border-color: var(--accent);
+        }
+
+        /* Empty state */
+
+        .empty-state {
+            grid-column: 1 / -1;
+            padding: 65px 25px;
+            border: 1px dashed rgba(148, 163, 184, .28);
+            border-radius: var(--radius);
+            background: rgba(16, 24, 39, .5);
+            text-align: center;
+        }
+
+        .empty-icon {
+            width: 65px;
+            height: 65px;
+            display: grid;
+            place-items: center;
+            margin: 0 auto 20px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            background: var(--surface-light);
+            color: var(--accent);
+            font-size: 1.5rem;
+        }
+
+        .empty-state h3 {
+            margin: 0 0 8px;
+            font-size: 1.35rem;
+        }
+
+        .empty-state p {
+            max-width: 430px;
+            margin: 0 auto;
+            color: var(--muted);
+            font-size: .92rem;
+        }
+
+        /* Footer */
+
+        .site-footer {
+            border-top: 1px solid var(--border);
+            padding: 28px 0;
+            background: #080d19;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
             color: var(--muted);
             font-size: .85rem;
         }
 
-        .price {
-            font-size: 1.5rem;
-            font-weight: 800;
+        .footer-brand {
+            color: var(--text);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
         }
 
-        .empty-state {
-            grid-column: 1 / -1;
-            padding: 40px 24px;
-            border: 1px dashed var(--border);
-            border-radius: 16px;
-            text-align: center;
+        .footer-brand span {
+            color: var(--accent);
+        }
+
+        .footer-credit {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .linkedin-link {
+            display: inline-grid;
+            place-items: center;
+            width: 30px;
+            height: 30px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
             color: var(--muted);
+            transition: .2s ease;
         }
 
-        footer {
-            border-top: 1px solid var(--border);
-            padding: 24px 0;
-            color: var(--muted);
-            text-align: center;
-            font-size: .9rem;
+        .linkedin-link:hover {
+            border-color: var(--accent);
+            color: var(--accent);
         }
 
-        @media (max-width: 520px) {
-            nav { align-items: flex-start; padding: 18px 0; }
-            .nav-links { gap: 12px; font-size: .9rem; }
-            .hero { padding: 60px 0 45px; }
-            .section-heading { align-items: flex-start; }
+        /* Responsive layout */
+
+        @media (max-width: 900px) {
+            .auction-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .hero {
+                padding: 85px 0 75px;
+            }
         }
+
+        @media (max-width: 600px) {
+            .navbar {
+                min-height: 82px;
+                gap: 12px;
+            }
+
+            .logo {
+                font-size: 1.5rem;
+                gap: 8px;
+            }
+
+            .logo-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+
+            .nav-links {
+                gap: 12px;
+                font-size: .82rem;
+            }
+
+            .nav-actions {
+                gap: 8px;
+            }
+
+            .nav-button,
+            .logout-button {
+                padding: 9px 11px;
+                font-size: .78rem;
+            }
+
+            .hero {
+                padding: 72px 0 65px;
+            }
+
+            .hero h1 {
+                letter-spacing: -1.8px;
+            }
+
+            .hero-description {
+                font-size: .98rem;
+            }
+
+            .hero-features {
+                gap: 13px 20px;
+                font-size: .8rem;
+            }
+
+            .auctions-section {
+                padding: 45px 0 70px;
+            }
+
+            .section-top {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .auction-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .auction-card {
+                padding: 22px;
+            }
+
+            .auction-description {
+                min-height: auto;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                transition-duration: .01ms !important;
+                animation-duration: .01ms !important;
+            }
+        }
+
+        /* Homepage statistics */
+.stats-section {
+    padding: 35px 0;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+}
+
+.stat-card {
+    padding: 25px;
+    background: #111c32;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    text-align: center;
+}
+
+.stat-card h3 {
+    color: #3b82f6;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2rem;
+    margin-bottom: 6px;
+}
+
+.stat-card p {
+    color: #a8b3c7;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
     </style>
 </head>
+
 <body>
-<header>
-    <nav class="container">
-        <a class="logo" th:href="@{/}">Live<span>Bid</span></a>
 
+<header class="site-header">
+    <nav class="navbar container">
 
+        <!-- Logo stays on the left -->
+        <a class="logo" th:href="@{/}" aria-label="LiveBid homepage">
+            <span class="logo-icon">
+                <i class="fa-solid fa-gavel"></i>
+            </span>
+            Live<span>Bid</span>
+        </a>
+
+        <!-- Navigation actions stay on the right -->
         <div class="nav-links">
             <a href="#auctions">Auctions</a>
 
-            <a th:if="${!isAuthenticated}"
-               th:href="@{/login}">Log in</a>
+            <div class="nav-actions">
 
-            <a th:if="${!isAuthenticated}"
-               th:href="@{/register}">Register</a>
+                <a class="login-link"
+                   th:if="${isAuthenticated}"
+                   th:href="@{/my-auctions}">
+                    <i class="fa-solid fa-layer-group"></i>
+                    My Auctions
+                </a>
 
-            <form th:if="${isAuthenticated}"
-                  th:action="@{/logout}"
-                  method="post"
-                  style="display:inline">
-                <button type="submit"
-                        style="padding:10px 14px;border:0;border-radius:8px;
-                       background:#38bdf8;color:#082032;font-weight:bold;
-                       cursor:pointer">
-                    Log out
-                </button>
-            </form>
+                <a class="nav-button"
+                   th:if="${isAuthenticated}"
+                   th:href="@{/auctions/new}">
+                    <i class="fa-solid fa-plus"></i>
+                    Create Auction
+                </a>
+
+                <a class="login-link"
+                   th:if="${!isAuthenticated}"
+                   th:href="@{/login}">
+                    Log in
+                </a>
+
+                <a class="nav-button"
+                   th:if="${!isAuthenticated}"
+                   th:href="@{/register}">
+                    Get started
+                    <i class="fa-solid fa-arrow-right"></i>
+                </a>
+
+                <form th:if="${isAuthenticated}"
+                      th:action="@{/logout}"
+                      method="post"
+                      style="display:inline">
+                    <button class="logout-button" type="submit">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        Log out
+                    </button>
+                </form>
+
+            </div>
         </div>
-
 
     </nav>
 </header>
 
 <main>
+
     <section class="hero">
         <div class="container">
-            <div class="eyebrow">Discover. Bid. Win.</div>
-            <h1>Your next great find is one bid away.</h1>
-            <p>
-                Explore auctions, compete in real time, and find something
-                worth winning on LiveBid.
-            </p>
-            <a class="button" href="#auctions">Explore auctions ↓</a>
-        </div>
-    </section>
+            <div class="hero-content">
 
-    <section class="container" id="auctions">
-        <div class="section-heading">
-            <h2>Explore auctions</h2>
-            <span style="color: var(--muted)">Your next win starts here</span>
-        </div>
-
-
-        <div class="auction-grid">
-            <article class="auction-card" th:each="auction : ${auctions}">
-                <span class="status" th:text="${auction.status}">LIVE</span>
-
-                <h3 th:text="${auction.title}">Auction title</h3>
-
-                <p th:text="${auction.description != null and !auction.description.isBlank()
-            ? auction.description : 'Discover this auction on LiveBid.'}">
-                    Auction description
-                </p>
-
-                <div class="price-label">Starting price</div>
-
-                <div class="price">
-                    <span th:text="${auction.currency}">INR</span>
-                    <span th:text="${#numbers.formatDecimal(auction.startingPrice, 1, 2)}">
-                50.00
-            </span>
+                <div class="eyebrow">
+                    <span class="eyebrow-dot"></span>
+                    Discover. Bid. Win.
                 </div>
 
-                <p>
-                    Ends:
-                    <time th:text="${#temporals.format(auction.endsAt, 'dd MMM yyyy, HH:mm')}">
-                        Auction end time
-                    </time>
+                <h1>
+                    Great finds.
+                    <span>Winning bids.</span>
+                </h1>
+
+                <p class="hero-description">
+                    Discover exciting auctions, compete in real time,
+                    and find something worth winning.
+                    Your next great find starts with LiveBid.
                 </p>
 
-                <a class="button"
-                   th:href="@{/auctions/{id}(id=${auction.id})}">
-                    View auction
-                </a>
-            </article>
+                <div class="hero-actions">
+                    <a class="primary-button" href="#auctions">
+                        Explore auctions
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
 
-            <div class="empty-state" th:if="${#lists.isEmpty(auctions)}">
-                <h3>No auctions yet</h3>
-                <p>New opportunities will appear here when auctions are created.</p>
+                    <a class="secondary-button"
+                       th:if="${!isAuthenticated}"
+                       th:href="@{/register}">
+                        <i class="fa-solid fa-user-plus"></i>
+                        Join LiveBid
+                    </a>
+                </div>
+
+                <div class="hero-features">
+                    <span>
+                        <i class="fa-solid fa-circle-check"></i>
+                        Real-time bidding
+                    </span>
+
+                    <span>
+                        <i class="fa-solid fa-shield-halved"></i>
+                        Secure accounts
+                    </span>
+
+                    <span>
+                        <i class="fa-solid fa-bolt"></i>
+                        Instant updates
+                    </span>
+                </div>
+
             </div>
         </div>
 
+    </section>
+
+    <section class="auctions-section" id="auctions">
+
+
+        <!-- Featured Live Auction -->
+        <section class="featured-section"
+                 th:if="${featuredAuction != null}">
+
+            <div class="container">
+
+                <div class="featured-card">
+
+                    <div>
+                        <div class="featured-label">
+                            <i class="fa-solid fa-crown"></i>
+                            Featured Auction
+                        </div>
+
+                        <div class="featured-status">
+                            LIVE NOW
+                        </div>
+
+                        <h2 th:text="${featuredAuction.title}">
+                            Featured Auction Title
+                        </h2>
+
+                        <p class="featured-description"
+                           th:text="${featuredAuction.description != null
+                   and !featuredAuction.description.isBlank()
+                   ? featuredAuction.description
+                   : 'Discover this exciting auction on LiveBid.'}">
+                            Auction description
+                        </p>
+                    </div>
+
+                    <div class="featured-price-box">
+
+                        <div class="featured-price-label">
+                            Starting Price
+                        </div>
+
+                        <div class="featured-price">
+                            <span th:text="${featuredAuction.currency}">INR</span>
+                            <span th:text="${#numbers.formatDecimal(
+                        featuredAuction.startingPrice, 1, 2
+                    )}">0.00</span>
+                        </div>
+
+                        <div class="featured-end">
+                            <i class="fa-regular fa-clock"></i>
+                            Ends:
+                            <strong th:text="${#temporals.format(
+                        featuredAuction.endsAt, 'dd MMM yyyy, HH:mm'
+                    )}">Auction end</strong>
+                        </div>
+
+                        <a class="featured-button"
+                           th:href="@{/auctions/{id}(id=${featuredAuction.id})}">
+                            View Featured Auction
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </section>
+        <section class="stats-section">
+            <div class="container">
+                <div class="stats-grid">
+
+                    <div class="stat-card">
+                        <h3 th:text="${totalAuctions}">0</h3>
+                        <p>Total Auctions</p>
+                    </div>
+
+                    <div class="stat-card">
+                        <h3 th:text="${liveAuctions}">0</h3>
+                        <p>Live Auctions</p>
+                    </div>
+
+                    <div class="stat-card">
+                        <h3 th:text="${totalUsers}">0</h3>
+                        <p>Registered Users</p>
+                    </div>
+
+                    <div class="stat-card">
+                        <h3 th:text="${totalBids}">0</h3>
+                        <p>Total Bids</p>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+
+        <div class="container">
+
+            <div class="section-top">
+                <div>
+                    <p class="section-kicker">The marketplace</p>
+                    <h2>Explore auctions</h2>
+                    <p class="section-subtitle">
+                        Find something special and make your move.
+                    </p>
+                </div>
+
+                <a class="section-link" href="#auctions">
+                    Browse marketplace
+                    <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <div class="auction-grid">
+
+                <article class="auction-card"
+                         th:each="auction : ${auctions}">
+
+                    <div class="card-top">
+                        <span th:class="${'status ' + #strings.toLowerCase(auction.status.toString())}"
+                              th:text="${auction.status}">LIVE</span>
+
+                        <span class="card-icon">
+                            <i class="fa-solid fa-gavel"></i>
+                        </span>
+                    </div>
+
+                    <h3 th:text="${auction.title}">
+                        Auction title
+                    </h3>
+
+                    <p class="auction-description"
+                       th:text="${auction.description != null and !auction.description.isBlank()
+                       ? auction.description : 'Discover this auction on LiveBid.'}">
+                        Auction description
+                    </p>
+
+                    <div class="card-divider"></div>
+
+                    <div class="price-label">
+                        Starting price
+                    </div>
+
+                    <div class="price">
+                        <span class="price-currency"
+                              th:text="${auction.currency}">
+                            INR
+                        </span>
+
+                        <span th:text="${#numbers.formatDecimal(auction.startingPrice, 1, 2)}">
+                            50.00
+                        </span>
+                    </div>
+
+                    <div class="auction-end">
+                        <i class="fa-regular fa-clock"></i>
+
+                        <span>Ends:</span>
+
+                        <time th:text="${#temporals.format(auction.endsAt, 'dd MMM yyyy, HH:mm')}">
+                            Auction end time
+                        </time>
+                    </div>
+
+                    <a class="card-button"
+                       th:href="@{/auctions/{id}(id=${auction.id})}">
+                        View auction
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+
+                </article>
+
+                <div class="empty-state"
+                     th:if="${#lists.isEmpty(auctions)}">
+
+                    <div class="empty-icon">
+                        <i class="fa-solid fa-box-open"></i>
+                    </div>
+
+                    <h3>No auctions just yet</h3>
+
+                    <p>
+                        New opportunities will appear here when auctions
+                        are created. Check back soon for your next great find.
+                    </p>
+
+                </div>
+
+            </div>
         </div>
     </section>
+
 </main>
 
-<footer>
-    <div class="container">
-        © 2026 LiveBid. Bid fairly. Win confidently by
-        <strong>Arbaz Khan</strong>
-        <a href="https://www.linkedin.com/in/arbazkhann/"
-           target="_blank"
-           rel="noopener noreferrer"
-           aria-label="Arbaz Khan's LinkedIn profile"
-           title="Visit my LinkedIn profile">
-            <i class="fa-brands fa-linkedin"></i>
-        </a>.
+<footer class="site-footer">
+    <div class="container footer-content">
+
+        <div class="footer-brand">
+            Live<span>Bid</span>
+        </div>
+
+        <div>
+            © 2026 LiveBid. Bid fairly. Win confidently.
+        </div>
+
+        <div class="footer-credit">
+            Built by <strong>Arbaz Khan</strong>
+
+            <a class="linkedin-link"
+               href="https://www.linkedin.com/in/arbazkhann/"
+               target="_blank"
+               rel="noopener noreferrer"
+               aria-label="Arbaz Khan's LinkedIn profile"
+               title="Visit my LinkedIn profile">
+                <i class="fa-brands fa-linkedin"></i>
+            </a>
+        </div>
+
     </div>
 </footer>
+
 </body>
 </html>

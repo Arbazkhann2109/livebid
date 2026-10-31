@@ -1,7 +1,12 @@
 
 package com.livebid;
 
+import com.livebid.auction.entity.Auction;
+import com.livebid.auction.repository.AuctionRepository;
 import com.livebid.auction.service.AuctionService;
+import com.livebid.bidding.repository.BidRepository;
+import com.livebid.user.repository.UserRepository;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -14,13 +19,25 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class HomeController {
 
     private final AuctionService auctionService;
+    private final AuctionRepository auctionRepository;
+    private final UserRepository userRepository;
+    private final BidRepository bidRepository;
 
-    public HomeController(AuctionService auctionService) {
+    public HomeController(
+            AuctionService auctionService,
+            AuctionRepository auctionRepository,
+            UserRepository userRepository,
+            BidRepository bidRepository) {
+
         this.auctionService = auctionService;
+        this.auctionRepository = auctionRepository;
+        this.userRepository = userRepository;
+        this.bidRepository = bidRepository;
     }
 
     @GetMapping("/")
     public String home(Authentication authentication, Model model) {
+
         var auctions = auctionService.getAuctions(
                 PageRequest.of(
                         0,
@@ -34,9 +51,31 @@ public class HomeController {
                         && authentication.isAuthenticated()
                         && !(authentication instanceof AnonymousAuthenticationToken);
 
+        // Featured live auction
+        Auction featuredAuction = auctionRepository
+                .findFirstByStatusOrderByStartingPriceDesc("LIVE")
+                .orElse(null);
+
+        // Marketplace statistics
+        long totalAuctions = auctionRepository.count();
+
+        long liveAuctions = auctionRepository
+                .countByStatus("LIVE");
+
+        long totalUsers = userRepository.count();
+
+        long totalBids = bidRepository.count();
+
         model.addAttribute("appName", "LiveBid");
         model.addAttribute("auctions", auctions.getContent());
         model.addAttribute("isAuthenticated", authenticated);
+
+        model.addAttribute("featuredAuction", featuredAuction);
+
+        model.addAttribute("totalAuctions", totalAuctions);
+        model.addAttribute("liveAuctions", liveAuctions);
+        model.addAttribute("totalUsers", totalUsers);
+        model.addAttribute("totalBids", totalBids);
 
         return "index";
     }

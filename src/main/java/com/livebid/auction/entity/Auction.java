@@ -5,7 +5,7 @@ import com.livebid.user.entity.User;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-
+import com.livebid.bidding.entity.Bid;
 @Entity
 @Table(name = "auctions")
 public class Auction {
@@ -45,6 +45,10 @@ public class Auction {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "winning_bid_id")
+    private Bid winningBid;
+
     protected Auction() {
     }
 
@@ -81,6 +85,7 @@ public class Auction {
     public String getStatus() { return status; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public Bid getWinningBid() {return winningBid;}
 
     public void setSeller(User seller) { this.seller = seller; }
     public void setTitle(String title) { this.title = title; }
@@ -90,6 +95,7 @@ public class Auction {
     public void setStartsAt(LocalDateTime startsAt) { this.startsAt = startsAt; }
     public void setEndsAt(LocalDateTime endsAt) { this.endsAt = endsAt; }
     public void setStatus(String status) { this.status = status; }
+    public void setWinningBid(Bid winningBid) {this.winningBid = winningBid;}
 
     @PrePersist
     protected void onCreate() {

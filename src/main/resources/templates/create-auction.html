@@ -1,0 +1,660 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0b1120">
+
+    <title>Create Auction | LiveBid</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 10% 10%, rgba(37, 99, 235, 0.12), transparent 35%),
+                #0b1120;
+            color: #f8fafc;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        /* Navigation */
+
+        .site-header {
+            border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+            background: #0b1120;
+        }
+
+        .navbar {
+            max-width: 1250px;
+            min-height: 85px;
+            margin: auto;
+            padding: 0 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            color: #f8fafc;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .logo span {
+            color: #38bdf8;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            color: #cbd5e1;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: #38bdf8;
+        }
+
+        /* Main layout */
+
+        main {
+            width: min(100% - 40px, 1000px);
+            margin: 55px auto 80px;
+        }
+
+        .page-heading {
+            margin-bottom: 32px;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            margin-bottom: 15px;
+            padding: 8px 13px;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            border-radius: 30px;
+            background: rgba(56, 189, 248, 0.08);
+            color: #38bdf8;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.7px;
+            text-transform: uppercase;
+        }
+
+        .page-heading h1 {
+            margin-bottom: 12px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(2rem, 5vw, 2.8rem);
+            letter-spacing: -1px;
+        }
+
+        .page-heading p {
+            max-width: 620px;
+            color: #94a3b8;
+            font-size: 1rem;
+            line-height: 1.7;
+        }
+
+        /* Form card */
+
+        .form-card {
+            overflow: hidden;
+            border: 1px solid rgba(148, 163, 184, 0.15);
+            border-radius: 20px;
+            background: #111c32;
+            box-shadow: 0 25px 65px rgba(0, 0, 0, 0.25);
+        }
+
+        .form-header {
+            padding: 25px 32px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+            background: rgba(30, 58, 95, 0.18);
+        }
+
+        .form-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            margin-bottom: 6px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.25rem;
+        }
+
+        .form-header h2 i {
+            color: #38bdf8;
+        }
+
+        .form-header p {
+            color: #94a3b8;
+            font-size: 0.88rem;
+        }
+
+        .form-body {
+            padding: 32px;
+        }
+
+        /* Form sections */
+
+        .form-section {
+            margin-bottom: 34px;
+        }
+
+        .section-heading {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            margin-bottom: 22px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        .section-icon {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: rgba(56, 189, 248, 0.1);
+            color: #38bdf8;
+        }
+
+        .section-heading h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.05rem;
+        }
+
+        .section-heading p {
+            margin-top: 3px;
+            color: #94a3b8;
+            font-size: 0.8rem;
+        }
+
+        /* Inputs */
+
+        .form-group {
+            min-width: 0;
+            margin-bottom: 22px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 22px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 9px;
+            color: #e2e8f0;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .required {
+            color: #38bdf8;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 14px 15px;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            outline: none;
+            background: #0b1120;
+            color: #f8fafc;
+            font-family: inherit;
+            font-size: 0.93rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: #64748b;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.12);
+        }
+
+        textarea {
+            min-height: 135px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        select {
+            cursor: pointer;
+        }
+
+        input[type="datetime-local"] {
+            color-scheme: dark;
+        }
+
+        .help-text {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-top: 9px;
+            color: #94a3b8;
+            font-size: 0.8rem;
+            line-height: 1.5;
+        }
+
+        .help-text i {
+            margin-top: 2px;
+            color: #38bdf8;
+        }
+
+        .field-error {
+            display: block;
+            margin-top: 8px;
+            color: #fca5a5;
+            font-size: 0.82rem;
+            line-height: 1.4;
+        }
+
+        /* Error message */
+
+        .page-error {
+            display: flex;
+            align-items: flex-start;
+            gap: 11px;
+            margin-bottom: 25px;
+            padding: 15px;
+            border: 1px solid rgba(248, 113, 113, 0.3);
+            border-radius: 10px;
+            background: rgba(127, 29, 29, 0.2);
+            color: #fecaca;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .page-error i {
+            margin-top: 2px;
+            color: #f87171;
+        }
+
+        /* Buttons */
+
+        .form-actions {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding-top: 26px;
+            border-top: 1px solid rgba(148, 163, 184, 0.12);
+        }
+
+        .btn {
+            min-height: 49px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            padding: 13px 23px;
+            border: none;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.92rem;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-primary {
+            flex: 1;
+            background: linear-gradient(135deg, #38bdf8, #2563eb);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.25);
+        }
+
+        .btn-secondary {
+            background: #1e293b;
+            color: #cbd5e1;
+        }
+
+        .btn-secondary:hover {
+            background: #334155;
+        }
+
+        /* Responsive */
+
+        @media (max-width: 650px) {
+            .navbar {
+                min-height: 72px;
+                padding: 0 20px;
+            }
+
+            .logo {
+                font-size: 1.7rem;
+            }
+
+            main {
+                margin-top: 35px;
+            }
+
+            .form-header {
+                padding: 22px;
+            }
+
+            .form-body {
+                padding: 24px 20px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .page-heading h1 {
+                font-size: 2rem;
+            }
+
+            .form-actions {
+                flex-direction: column-reverse;
+                align-items: stretch;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .navbar {
+                padding: 0 14px;
+            }
+
+            .back-link {
+                font-size: 0.8rem;
+            }
+
+            main {
+                width: calc(100% - 26px);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="site-header">
+    <nav class="navbar">
+        <a th:href="@{/}" class="logo">
+            Live<span>Bid</span>
+        </a>
+
+        <a th:href="@{/}" class="back-link">
+            <i class="fa-solid fa-arrow-left"></i>
+            Back to Home
+        </a>
+    </nav>
+</header>
+
+<main>
+
+    <div class="page-heading">
+        <div class="eyebrow">
+            <i class="fa-solid fa-gavel"></i>
+            Seller Dashboard
+        </div>
+
+        <h1>Create an Auction</h1>
+
+        <p>
+            Give your item the spotlight it deserves.
+            Add the details, set your starting price, and choose when bidding begins.
+        </p>
+    </div>
+
+    <div class="form-card">
+
+        <div class="form-header">
+            <h2>
+                <i class="fa-solid fa-clipboard-list"></i>
+                Auction Information
+            </h2>
+
+            <p>Complete the details below to create your auction listing.</p>
+        </div>
+
+        <div class="form-body">
+
+            <div class="page-error"
+                 th:if="${pageError}"
+                 role="alert">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span th:text="${pageError}"></span>
+            </div>
+
+            <form th:action="@{/auctions/create}"
+                  th:object="${createAuctionRequest}"
+                  method="post">
+
+                <!-- Item details -->
+
+                <section class="form-section">
+
+                    <div class="section-heading">
+                        <div class="section-icon">
+                            <i class="fa-solid fa-box-open"></i>
+                        </div>
+
+                        <div>
+                            <h3>Item Details</h3>
+                            <p>Tell buyers what you're offering.</p>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="title">
+                            Auction Title <span class="required">*</span>
+                        </label>
+
+                        <input
+                                type="text"
+                                id="title"
+                                th:field="*{title}"
+                                placeholder="e.g. Vintage Rolex Watch"
+                                maxlength="200"
+                                required>
+
+                        <span class="field-error"
+                              th:if="${#fields.hasErrors('title')}"
+                              th:errors="*{title}"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Description</label>
+
+                        <textarea
+                                id="description"
+                                th:field="*{description}"
+                                placeholder="Describe your item, its condition, features and important details..."
+                                maxlength="10000"></textarea>
+
+                        <span class="field-error"
+                              th:if="${#fields.hasErrors('description')}"
+                              th:errors="*{description}"></span>
+
+                        <p class="help-text">
+                            <i class="fa-solid fa-circle-info"></i>
+                            A clear description helps buyers make informed bids.
+                        </p>
+                    </div>
+
+                </section>
+
+                <!-- Pricing -->
+
+                <section class="form-section">
+
+                    <div class="section-heading">
+                        <div class="section-icon">
+                            <i class="fa-solid fa-tag"></i>
+                        </div>
+
+                        <div>
+                            <h3>Starting Price</h3>
+                            <p>Set the minimum opening bid.</p>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+                            <label for="startingPrice">
+                                Starting Price <span class="required">*</span>
+                            </label>
+
+                            <input
+                                    type="number"
+                                    id="startingPrice"
+                                    th:field="*{startingPrice}"
+                                    placeholder="1000.00"
+                                    min="0"
+                                    step="0.01"
+                                    required>
+
+                            <span class="field-error"
+                                  th:if="${#fields.hasErrors('startingPrice')}"
+                                  th:errors="*{startingPrice}"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="currency">
+                                Currency <span class="required">*</span>
+                            </label>
+
+                            <select id="currency" th:field="*{currency}">
+                                <option value="INR">INR (₹)</option>
+                                <option value="USD">USD ($)</option>
+                                <option value="EUR">EUR (€)</option>
+                            </select>
+
+                            <span class="field-error"
+                                  th:if="${#fields.hasErrors('currency')}"
+                                  th:errors="*{currency}"></span>
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <!-- Auction schedule -->
+
+                <section class="form-section">
+
+                    <div class="section-heading">
+                        <div class="section-icon">
+                            <i class="fa-regular fa-calendar-days"></i>
+                        </div>
+
+                        <div>
+                            <h3>Auction Schedule</h3>
+                            <p>Choose when bidding opens and closes.</p>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+                            <label for="startsAt">
+                                Auction Start <span class="required">*</span>
+                            </label>
+
+                            <input
+                                    type="datetime-local"
+                                    id="startsAt"
+                                    th:field="*{startsAt}"
+                                    required>
+
+                            <span class="field-error"
+                                  th:if="${#fields.hasErrors('startsAt')}"
+                                  th:errors="*{startsAt}"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="endsAt">
+                                Auction End <span class="required">*</span>
+                            </label>
+
+                            <input
+                                    type="datetime-local"
+                                    id="endsAt"
+                                    th:field="*{endsAt}"
+                                    required>
+
+                            <span class="field-error"
+                                  th:if="${#fields.hasErrors('endsAt')}"
+                                  th:errors="*{endsAt}"></span>
+                        </div>
+
+                    </div>
+
+                    <p class="help-text">
+                        <i class="fa-solid fa-clock"></i>
+                        Choose future dates and times. The auction will follow its scheduled start and end times.
+                    </p>
+
+                </section>
+
+                <!-- Actions -->
+
+                <div class="form-actions">
+
+                    <a th:href="@{/}" class="btn btn-secondary">
+                        <i class="fa-solid fa-xmark"></i>
+                        Cancel
+                    </a>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-plus"></i>
+                        Create Auction
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</main>
+
+</body>
+</html>

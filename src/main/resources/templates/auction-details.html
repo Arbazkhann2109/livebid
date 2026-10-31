@@ -1,265 +1,1151 @@
 
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#080d19">
+
     <title>Auction Details | LiveBid</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
     <style>
+        :root {
+            color-scheme: dark;
+            --bg: #080d19;
+            --surface: #101827;
+            --surface-light: #162237;
+            --text: #f4f7ff;
+            --muted: #94a3b8;
+            --accent: #55a8ff;
+            --accent-bright: #79bdff;
+            --border: rgba(148, 163, 184, .14);
+            --success: #34d399;
+            --danger: #f87171;
+            --radius: 18px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
             margin: 0;
-            padding: 30px 16px;
-            background: #0b1120;
-            color: #f8fafc;
-            font: 16px/1.6 Arial, sans-serif;
+            min-height: 100vh;
+            background:
+                radial-gradient(ellipse at 50% -20%, rgba(37, 99, 235, .15), transparent 55%),
+                var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
         }
 
-        main { max-width: 850px; margin: auto; }
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
 
-        a { color: #38bdf8; text-decoration: none; }
+        button,
+        input {
+            font: inherit;
+        }
+
+        .container {
+            width: min(1120px, 92%);
+            margin: 0 auto;
+        }
+
+        /* Navigation */
+
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(8, 13, 25, .9);
+            backdrop-filter: blur(18px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .navbar {
+            min-height: 74px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.55rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        .logo-icon {
+            width: 37px;
+            height: 37px;
+            display: grid;
+            place-items: center;
+            border-radius: 11px;
+            background: linear-gradient(135deg, #287bd5, #65b7ff);
+            color: white;
+        }
+
+        .logo > span:last-child {
+            color: var(--accent);
+        }
+
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            color: var(--muted);
+            font-size: .9rem;
+            font-weight: 600;
+            transition: .2s ease;
+        }
+
+        .back-link:hover {
+            color: white;
+        }
+
+        /* Page layout */
+
+        .page {
+            padding: 42px 0 85px;
+        }
+
+        .breadcrumb {
+            margin-bottom: 28px;
+            color: var(--muted);
+            font-size: .85rem;
+        }
+
+        .breadcrumb a {
+            color: var(--accent-bright);
+        }
+
+        .breadcrumb i {
+            margin: 0 9px;
+            font-size: .7rem;
+        }
+
+        .auction-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.5fr) minmax(300px, .85fr);
+            align-items: start;
+            gap: 25px;
+        }
+
+        .main-column,
+        .side-column {
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+            min-width: 0;
+        }
+
+        /* Panels */
 
         .panel {
-            margin-top: 24px;
-            padding: 24px;
-            border: 1px solid #28354a;
-            border-radius: 14px;
-            background: #151e30;
+            padding: 27px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: linear-gradient(145deg, #142035, #0e1727);
         }
 
-        .muted { color: #9ca3b8; }
+        .panel-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 21px;
+        }
 
-        .status {
+        .panel-heading h2 {
+            margin: 0;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.25rem;
+            letter-spacing: -.4px;
+        }
+
+        .muted {
+            color: var(--muted);
+        }
+
+        /* Auction overview */
+
+        .auction-status
+        .auction-title {
+            margin: 19px 0 12px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(1.9rem, 4vw, 2.7rem);
+            line-height: 1.2;
+            letter-spacing: -1.4px;
+            overflow-wrap: anywhere;
+        }
+
+        .auction-description {
+            margin: 0;
+            color: var(--muted);
+            font-size: .98rem;
+            line-height: 1.8;
+            white-space: pre-line;
+            overflow-wrap: anywhere;
+        }
+
+        .overview-divider {
+            height: 1px;
+            margin: 25px 0;
+            background: var(--border);
+        }
+
+        .auction-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .meta-icon {
+            width: 39px;
+            height: 39px;
+            flex-shrink: 0;
+            display: grid;
+            place-items: center;
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            background: rgba(85, 168, 255, .08);
+            color: var(--accent);
+        }
+
+        .meta-label {
+            display: block;
+            margin-bottom: 3px;
+            color: var(--muted);
+            font-size: .78rem;
+        }
+
+        .meta-value {
+            font-size: .88rem;
+            font-weight: 600;
+            overflow-wrap: anywhere;
+        }
+
+        /* Current bid */
+
+        .current-bid-panel {
+            position: relative;
+            overflow: hidden;
+            border-color: rgba(85, 168, 255, .24);
+            background:
+                radial-gradient(ellipse at 100% 0%, rgba(37, 99, 235, .2), transparent 65%),
+                linear-gradient(145deg, #14243d, #101827);
+        }
+
+        .current-bid-panel::after {
+            content: "";
+            position: absolute;
+            right: -45px;
+            bottom: -75px;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: rgba(37, 99, 235, .08);
+            pointer-events: none;
+        }
+
+        .live-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
             color: #6ee7b7;
-            font-weight: bold;
+            font-size: .76rem;
+            font-weight: 700;
+            letter-spacing: 1px;
         }
 
-        .price { font-size: 1.8rem; font-weight: bold; }
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            box-shadow: 0 0 12px var(--success);
+        }
 
-        table { width: 100%; border-collapse: collapse; }
+        .current-bid-label {
+            margin: 21px 0 3px;
+            color: var(--muted);
+            font-size: .88rem;
+        }
 
-        th, td {
-            padding: 12px 8px;
-            border-bottom: 1px solid #28354a;
+        .current-bid-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(2.1rem, 5vw, 3rem);
+            font-weight: 700;
+            line-height: 1.25;
+            letter-spacing: -1px;
+            overflow-wrap: anywhere;
+        }
+
+        .current-bid-value span {
+            color: var(--accent-bright);
+            font-size: 1rem;
+            letter-spacing: 0;
+        }
+
+        .bid-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            margin-top: 21px;
+            padding-top: 19px;
+            border-top: 1px solid var(--border);
+        }
+
+        .stat-label {
+            display: block;
+            color: var(--muted);
+            font-size: .76rem;
+        }
+
+        .stat-value {
+            display: block;
+            margin-top: 3px;
+            font-size: .95rem;
+            font-weight: 700;
+            overflow-wrap: anywhere;
+        }
+
+        /* Countdown */
+
+        .countdown-panel {
+            text-align: center;
+        }
+
+        .countdown-panel .panel-heading {
+            justify-content: center;
+        }
+
+        .countdown-display {
+            margin: 5px 0;
+            color: var(--success);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(1.9rem, 4vw, 2.5rem);
+            font-weight: 700;
+            letter-spacing: -1px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .countdown-message {
+            margin: 0;
+            color: var(--muted);
+            font-size: .83rem;
+        }
+
+        /* Bid form */
+
+        .bid-form-panel {
+            border-color: rgba(85, 168, 255, .25);
+        }
+
+        .bid-form-panel h2 {
+            margin: 0;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.3rem;
+        }
+
+        .form-description {
+            margin: 7px 0 21px;
+            color: var(--muted);
+            font-size: .88rem;
+        }
+
+        .feedback {
+            padding: 12px 14px;
+            margin-bottom: 17px;
+            border-radius: 10px;
+            font-size: .88rem;
+            font-weight: 600;
+            overflow-wrap: anywhere;
+        }
+
+        .feedback.success {
+            border: 1px solid rgba(52, 211, 153, .2);
+            background: rgba(52, 211, 153, .09);
+            color: #6ee7b7;
+        }
+
+        .feedback.error {
+            border: 1px solid rgba(248, 113, 113, .2);
+            background: rgba(248, 113, 113, .09);
+            color: #fca5a5;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text);
+            font-size: .85rem;
+            font-weight: 600;
+        }
+
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 14px;
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            background: #0b1424;
+            transition: border-color .2s ease;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(85, 168, 255, .1);
+        }
+
+        .input-currency {
+            color: var(--accent-bright);
+            font-size: .84rem;
+            font-weight: 700;
+        }
+
+        .bid-input {
+            width: 100%;
+            min-width: 0;
+            height: 51px;
+            border: 0;
+            outline: none;
+            background: transparent;
+            color: var(--text);
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .bid-input::placeholder {
+            color: #64748b;
+            font-weight: 400;
+        }
+
+        .bid-input::-webkit-inner-spin-button,
+        .bid-input::-webkit-outer-spin-button {
+            opacity: 1;
+        }
+
+        .submit-bid {
+            width: 100%;
+            min-height: 49px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+            border: 0;
+            border-radius: 11px;
+            background: var(--accent);
+            color: #071426;
+            font-size: .94rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: .2s ease;
+        }
+
+        .submit-bid:hover {
+            background: var(--accent-bright);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(59, 130, 246, .2);
+        }
+
+        .form-note {
+            margin: 13px 0 0;
+            color: var(--muted);
+            font-size: .76rem;
+            text-align: center;
+        }
+
+        /* Bid history */
+
+        .history-panel {
+            min-width: 0;
+        }
+
+        .history-count {
+            padding: 5px 10px;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            background: var(--surface-light);
+            color: var(--muted);
+            font-size: .75rem;
+            font-weight: 700;
+        }
+
+        .table-wrap {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            min-width: 420px;
+            border-collapse: collapse;
+        }
+
+        th {
+            padding: 12px 10px;
+            border-bottom: 1px solid var(--border);
+            color: var(--muted);
+            font-size: .76rem;
+            font-weight: 600;
             text-align: left;
+            white-space: nowrap;
         }
 
-        th { color: #9ca3b8; }
+        td {
+            padding: 15px 10px;
+            border-bottom: 1px solid var(--border);
+            font-size: .85rem;
+        }
 
-        .table-wrap { overflow-x: auto; }
+        tbody tr:last-child td {
+            border-bottom: 0;
+        }
 
-        .leading-row { background: #1e3a36; }
+        .leading-row {
+            background: rgba(52, 211, 153, .055);
+        }
+
+        .leading-row td:first-child {
+            border-left: 2px solid var(--success);
+        }
 
         .leading-label {
-            color: #6ee7b7;
-            font-size: 12px;
-            font-weight: bold;
+            display: block;
+            margin-top: 4px;
+            color: var(--success);
+            font-size: .65rem;
+            font-weight: 800;
+            letter-spacing: .7px;
         }
 
-        .live-indicator {
-            color: #6ee7b7;
-            font-size: 13px;
-            margin-left: 8px;
+        .bidder-name {
+            font-weight: 600;
         }
+
+        .bid-amount {
+            color: var(--accent-bright);
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .bid-time {
+            color: var(--muted);
+            white-space: nowrap;
+            font-size: .79rem;
+        }
+
+        .no-bids {
+            padding: 25px 12px;
+            color: var(--muted);
+            text-align: center;
+            font-size: .88rem;
+        }
+
+        /* Footer */
+
+        .site-footer {
+            padding: 24px 0;
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+            text-align: center;
+            font-size: .83rem;
+        }
+
+        .site-footer strong {
+            color: var(--text);
+        }
+
+        /* Responsive */
+
+        @media (max-width: 850px) {
+            .auction-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .side-column {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                align-items: start;
+            }
+
+            .bid-form-panel {
+                grid-column: 1 / -1;
+            }
+        }
+
+
+.schedule-auction {
+    margin: 25px 0;
+    padding: 25px;
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    border-radius: 14px;
+    background: rgba(56, 189, 248, 0.06);
+}
+
+.schedule-auction h3 {
+    margin-bottom: 9px;
+    color: #f8fafc;
+}
+
+.schedule-auction p {
+    margin-bottom: 18px;
+    color: #94a3b8;
+    line-height: 1.6;
+}
+
+.schedule-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 13px 22px;
+    border: none;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #38bdf8, #2563eb);
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.schedule-button:hover {
+    transform: translateY(-2px);
+}
+
+.success-message {
+    margin: 15px 0;
+    padding: 14px;
+    border: 1px solid rgba(74, 222, 128, 0.3);
+    border-radius: 9px;
+    background: rgba(22, 101, 52, 0.2);
+    color: #86efac;
+}
+
+.error-message {
+    margin: 15px 0;
+    padding: 14px;
+    border: 1px solid rgba(248, 113, 113, 0.3);
+    border-radius: 9px;
+    background: rgba(127, 29, 29, 0.2);
+    color: #fecaca;
+}
+
+
+        @media (max-width: 560px) {
+            .navbar {
+                min-height: 68px;
+            }
+
+            .page {
+                padding: 28px 0 60px;
+            }
+
+            .panel {
+                padding: 21px;
+            }
+
+            .side-column {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .auction-meta {
+                grid-template-columns: 1fr;
+            }
+
+            .auction-title {
+                font-size: 2rem;
+            }
+
+            .current-bid-value {
+                font-size: 2.3rem;
+            }
+
+            .bid-stats {
+                gap: 18px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                transition-duration: .01ms !important;
+            }
+        }
+
+        /* Auction Winner Announcement */
+.winner-announcement {
+    margin: 30px 0;
+    padding: 28px;
+    border: 1px solid rgba(234, 179, 8, 0.4);
+    border-radius: 16px;
+    background: linear-gradient(
+        135deg,
+        rgba(234, 179, 8, 0.12),
+        rgba(15, 23, 42, 0.95)
+    );
+    text-align: center;
+    color: #f8fafc;
+}
+
+.winner-announcement h2 {
+    color: #facc15;
+    font-size: 26px;
+    margin-bottom: 14px;
+}
+
+.winner-announcement p {
+    color: #cbd5e1;
+    font-size: 16px;
+    margin: 10px 0;
+}
+
+.winner-announcement strong {
+    color: #facc15;
+}
+
+.winner-announcement p strong {
+    font-size: 20px;
+}
     </style>
 </head>
 
 <body>
-<main>
 
-    <a th:href="@{/}">← Back to auctions</a>
+<header class="site-header">
+    <nav class="navbar container">
 
-    <!-- Auction information -->
-    <section class="panel">
-
-        <div class="status" th:text="${auction.status}">LIVE</div>
-
-        <h1 th:text="${auction.title}">Auction title</h1>
-
-        <p class="muted"
-           th:text="${auction.description != null and !auction.description.isBlank()
-               ? auction.description : 'No description provided.'}">
-            Auction description
-        </p>
-
-        <p class="muted">Starting price</p>
-
-        <div class="price">
-            <span th:text="${auction.currency}">INR</span>
-            <span th:text="${#numbers.formatDecimal(auction.startingPrice, 1, 2)}">
-                50.00
+        <a class="logo" th:href="@{/}" aria-label="LiveBid homepage">
+            <span class="logo-icon">
+                <i class="fa-solid fa-gavel"></i>
             </span>
-        </div>
+            Live<span>Bid</span>
+        </a>
 
-        <p>
-            <strong>Starts:</strong>
-            <span th:text="${#temporals.format(auction.startsAt, 'dd MMM yyyy, HH:mm')}">
-                Start time
-            </span>
-        </p>
+        <a class="back-link" th:href="@{/}">
+            <i class="fa-solid fa-arrow-left"></i>
+            Back to auctions
+        </a>
 
-        <p>
-            <strong>Ends:</strong>
-            <span th:text="${#temporals.format(auction.endsAt, 'dd MMM yyyy, HH:mm')}">
-                End time
-            </span>
-        </p>
+    </nav>
+</header>
 
-        <!-- Countdown -->
-        <div class="panel" style="margin-top:20px; background:#0b1120;">
-            <h2>Time Remaining</h2>
+<main class="container page">
 
-            <div id="auctionCountdown"
-                 th:data-end-time="${#temporals.format(auction.endsAt, 'yyyy-MM-dd HH:mm:ss')}"
-                 style="font-size:2rem; font-weight:bold; color:#6ee7b7;">
-                Calculating...
+    <div class="breadcrumb">
+        <a th:href="@{/}">Marketplace</a>
+        <i class="fa-solid fa-chevron-right"></i>
+        Auction details
+    </div>
+
+    <div class="auction-layout">
+
+        <!-- Main column -->
+        <div class="main-column">
+
+            <!-- Auction overview -->
+            <section class="panel">
+
+                <span class="auction-status"
+                      th:text="${auction.status}"
+                      th:classappend="${#strings.toLowerCase(auction.status.toString())}">
+    LIVE
+</span>
+
+                <h1 class="auction-title"
+                    th:text="${auction.title}">
+                    Auction title
+                </h1>
+
+                <p class="auction-description"
+                   th:text="${auction.description != null and !auction.description.isBlank()
+                       ? auction.description : 'No description provided.'}">
+                    Auction description
+                </p>
+
+                <div class="overview-divider"></div>
+
+                <div class="auction-meta">
+
+                    <div class="meta-item">
+                        <span class="meta-icon">
+                            <i class="fa-solid fa-tag"></i>
+                        </span>
+
+                        <div>
+                            <span class="meta-label">Starting price</span>
+                            <span class="meta-value">
+                                <span th:text="${auction.currency}">INR</span>
+                                <span th:text="${#numbers.formatDecimal(auction.startingPrice, 1, 2)}">
+                                    50.00
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="meta-item">
+                        <span class="meta-icon">
+                            <i class="fa-regular fa-calendar"></i>
+                        </span>
+
+                        <div>
+                            <span class="meta-label">Auction starts</span>
+                            <span class="meta-value"
+                                  th:text="${#temporals.format(auction.startsAt, 'dd MMM yyyy, HH:mm')}">
+                                Start time
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="meta-item">
+                        <span class="meta-icon">
+                            <i class="fa-solid fa-hourglass-end"></i>
+                        </span>
+
+                        <div>
+                            <span class="meta-label">Auction ends</span>
+                            <span class="meta-value"
+                                  th:text="${#temporals.format(auction.endsAt, 'dd MMM yyyy, HH:mm')}">
+                                End time
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="meta-item">
+                        <span class="meta-icon">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </span>
+
+                        <div>
+                            <span class="meta-label">Marketplace</span>
+                            <span class="meta-value">LiveBid</span>
+                        </div>
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- Auction Winner -->
+            <div class="winner-announcement"
+                 th:if="${auction.status == 'ENDED'}">
+
+                <div th:if="${winningBid != null}">
+                    <h2>🏆 Auction Winner</h2>
+
+                    <p>
+                        Congratulations,
+                        <strong th:text="${winnerName}"></strong>!
+                    </p>
+
+                    <p>
+                        Winning Bid:
+                        <strong>
+                            <span th:text="${auction.currency}"></span>
+                            <span th:text="${#numbers.formatDecimal(winningAmount, 1, 2)}"></span>
+                        </strong>
+                    </p>
+                </div>
+
+                <div th:if="${winningBid == null}">
+                    <h2>Auction Ended</h2>
+                    <p>No bids were placed. There is no winner.</p>
+                </div>
+
             </div>
 
-            <p id="auctionCountdownMessage" class="muted">
-                Time remaining until auction ends.
-            </p>
-        </div>
+            <!-- Bid history -->
+            <section class="panel history-panel">
 
-    </section>
+                <div class="panel-heading">
+                    <h2>
+                        <i class="fa-solid fa-clock-rotate-left"
+                           style="color:var(--accent); margin-right:8px;"></i>
+                        Bid history
+                    </h2>
 
-    <!-- Current auction status -->
-    <section class="panel">
+                    <span class="history-count">
+                        <span id="totalBids" th:text="${totalBids}">0</span>
+                        bids
+                    </span>
+                </div>
 
-        <h2>
-            Current Auction Status
-            <span class="live-indicator">● LIVE</span>
-        </h2>
+                <p id="noBidsMessage"
+                   class="no-bids"
+                   th:style="${#lists.isEmpty(bids) ? '' : 'display:none;'}">
+                    No bids have been placed yet. Be the first to make a move!
+                </p>
 
-        <p class="muted">Current highest bid</p>
+                <div class="table-wrap">
 
-        <div class="price">
-            <span th:text="${auction.currency}">INR</span>
-            <span id="currentHighestBid"
-                  th:text="${#numbers.formatDecimal(currentHighestBid, 1, 2)}">
-                50.00
-            </span>
-        </div>
+                    <table id="bidHistoryTable"
+                           th:style="${#lists.isEmpty(bids) ? 'display:none;' : ''}">
 
-        <p>
-            <strong>Total bids:</strong>
-            <span id="totalBids" th:text="${totalBids}">0</span>
-        </p>
+                        <thead>
+                        <tr>
+                            <th>Bidder</th>
+                            <th>Bid amount</th>
+                            <th>Time</th>
+                        </tr>
+                        </thead>
 
-        <p>
-            <strong>Leading bidder:</strong>
-            <span id="leadingBidder"
-                  th:text="${leadingBidder != null ? leadingBidder : 'No bids yet'}">
-                No bids yet
-            </span>
-        </p>
+                        <tbody id="bidHistoryBody">
 
-    </section>
+                        <tr th:each="bid, stat : ${bids}"
+                            th:attr="data-bid-id=${bid.id}"
+                            th:class="${stat.index == 0 ? 'leading-row' : ''}">
 
-    <!-- Place bid -->
-    <section class="panel">
+                            <td>
+                                <span class="bidder-name"
+                                      th:text="${bid.bidder.displayName}">
+                                    Bidder name
+                                </span>
 
-        <h2>Place a bid</h2>
+                                <span th:if="${stat.index == 0}"
+                                      class="leading-label">
+                                    LEADING BIDDER
+                                </span>
+                            </td>
 
-        <p th:if="${bidSuccess}"
-           th:text="${bidSuccess}"
-           style="color: #6ee7b7;">
-            Your bid was placed successfully.
-        </p>
+                            <td class="bid-amount">
+                                <span th:text="${auction.currency}">INR</span>
+                                <span th:text="${#numbers.formatDecimal(bid.amount, 1, 2)}">
+                                    60.00
+                                </span>
+                            </td>
 
-        <p th:if="${bidError}"
-           th:text="${bidError}"
-           style="color: #fca5a5;">
-            Your bid could not be placed.
-        </p>
+                            <td class="bid-time"
+                                th:text="${#temporals.format(bid.placedAt, 'dd MMM yyyy, HH:mm:ss')}">
+                                Bid time
+                            </td>
 
-        <form th:action="@{/auctions/{id}/bids(id=${auction.id})}"
-              method="post">
+                        </tr>
 
-            <label for="amount">Your bid amount</label>
+                        </tbody>
+                    </table>
 
-            <input id="amount"
-                   name="amount"
-                   type="number"
-                   min="0.01"
-                   step="0.01"
-                   required
-                   style="display:block; width:100%; max-width:320px;
-                      padding:12px; margin:10px 0 16px;
-                      border-radius:8px;">
+                </div>
 
-            <button type="submit"
-                    style="padding:12px 20px; border:0;
-                       border-radius:8px; background:#38bdf8;
-                       color:#082032; font-weight:bold; cursor:pointer;">
-                Place Bid
-            </button>
-
-        </form>
-
-    </section>
-
-    <!-- Bid history -->
-    <section class="panel">
-
-        <h2>Bid history</h2>
-
-        <p id="noBidsMessage"
-           class="muted"
-           th:style="${#lists.isEmpty(bids) ? '' : 'display:none;'}">
-            No bids have been placed yet.
-        </p>
-
-        <div class="table-wrap">
-
-            <table id="bidHistoryTable"
-                   th:style="${#lists.isEmpty(bids) ? 'display:none;' : ''}">
-
-                <thead>
-                <tr>
-                    <th>Bidder</th>
-                    <th>Amount</th>
-                    <th>Time</th>
-                </tr>
-                </thead>
-
-                <tbody id="bidHistoryBody">
-
-                <tr th:each="bid, stat : ${bids}"
-                    th:attr="data-bid-id=${bid.id}"
-                    th:class="${stat.index == 0 ? 'leading-row' : ''}">
-
-                    <td>
-                        <span th:text="${bid.bidder.displayName}">
-                            Bidder name
-                        </span>
-
-                        <span th:if="${stat.index == 0}"
-                              class="leading-label">
-                            LEADING BIDDER
-                        </span>
-                    </td>
-
-                    <td>
-                        <span th:text="${auction.currency}">INR</span>
-                        <span th:text="${#numbers.formatDecimal(bid.amount, 1, 2)}">
-                            60.00
-                        </span>
-                    </td>
-
-                    <td th:text="${#temporals.format(bid.placedAt, 'dd MMM yyyy, HH:mm:ss')}">
-                        Bid time
-                    </td>
-
-                </tr>
-
-                </tbody>
-            </table>
+            </section>
 
         </div>
 
-    </section>
+        <!-- Side column -->
+        <aside class="side-column">
+
+            <!-- Current highest bid -->
+            <section class="panel current-bid-panel">
+
+                <span class="live-label">
+                    <span class="live-dot"></span>
+                    AUCTION STATUS
+                </span>
+
+                <p class="current-bid-label">Current highest bid</p>
+
+                <div class="current-bid-value">
+                    <span th:text="${auction.currency}">INR</span>
+                    <span id="currentHighestBid"
+                          th:text="${#numbers.formatDecimal(currentHighestBid, 1, 2)}">
+                        50.00
+                    </span>
+                </div>
+
+                <div class="bid-stats">
+
+                    <div>
+                        <span class="stat-label">Total bids</span>
+                        <span class="stat-value"
+                              th:text="${totalBids}">
+                            0
+                        </span>
+                    </div>
+
+                    <div>
+                        <span class="stat-label">Leading bidder</span>
+                        <span class="stat-value"
+                              id="leadingBidder"
+                              th:text="${leadingBidder != null ? leadingBidder : 'No bids yet'}">
+                            No bids yet
+                        </span>
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- Auction creation success -->
+            <div class="success-message"
+                 th:if="${auctionCreated}"
+                 th:text="${auctionCreated}">
+            </div>
+
+            <!-- Scheduling success -->
+            <div class="success-message"
+                 th:if="${scheduleSuccess}"
+                 th:text="${scheduleSuccess}">
+            </div>
+
+            <!-- Scheduling error -->
+            <div class="error-message"
+                 th:if="${scheduleError}"
+                 th:text="${scheduleError}">
+            </div>
+
+            <!-- Schedule button: visible only to the owner of a draft auction -->
+            <div class="schedule-auction"
+                 th:if="${isAuctionOwner and auction.status == 'DRAFT'}">
+
+                <h3>Ready to publish your auction?</h3>
+
+                <p>
+                    Your auction is currently a draft.
+                    Schedule it to make it eligible for automatic activation
+                    at its selected start time.
+                </p>
+
+                <form th:action="@{/auctions/{id}/schedule(id=${auction.id})}"
+                      method="post">
+
+                    <button type="submit" class="schedule-button">
+                        <i class="fa-solid fa-calendar-check"></i>
+                        Schedule Auction
+                    </button>
+
+                </form>
+            </div>
+
+
+            <!-- Countdown -->
+            <section class="panel countdown-panel">
+
+                <div class="panel-heading">
+                    <h2>
+                        <i class="fa-regular fa-clock"
+                           style="color:var(--accent); margin-right:7px;"></i>
+                        Time remaining
+                    </h2>
+                </div>
+
+                <div id="auctionCountdown"
+                     class="countdown-display"
+                     th:data-end-time="${#temporals.format(auction.endsAt, 'yyyy-MM-dd HH:mm:ss')}">
+                    Calculating...
+                </div>
+
+                <p id="auctionCountdownMessage"
+                   class="countdown-message">
+                    Time remaining until auction ends.
+                </p>
+
+            </section>
+
+            <!-- Place bid -->
+            <section class="panel bid-form-panel">
+
+                <h2>
+                    <i class="fa-solid fa-gavel"
+                       style="color:var(--accent); margin-right:8px;"></i>
+                    Place your bid
+                </h2>
+
+                <p class="form-description">
+                    Enter your offer and compete for this auction.
+                </p>
+
+                <p th:if="${bidSuccess}"
+                   th:text="${bidSuccess}"
+                   class="feedback success">
+                    Your bid was placed successfully.
+                </p>
+
+                <p th:if="${bidError}"
+                   th:text="${bidError}"
+                   class="feedback error">
+                    Your bid could not be placed.
+                </p>
+
+                <form th:action="@{/auctions/{id}/bids(id=${auction.id})}"
+                      method="post">
+
+                    <label class="form-label" for="amount">
+                        Your bid amount
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <span class="input-currency"
+                              th:text="${auction.currency}">
+                            INR
+                        </span>
+
+                        <input class="bid-input"
+                               id="amount"
+                               name="amount"
+                               type="number"
+                               min="0.01"
+                               step="0.01"
+                               placeholder="Enter your amount"
+                               required>
+                    </div>
+
+                    <button class="submit-bid" type="submit">
+                        Place bid
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+
+                </form>
+
+                <p class="form-note">
+                    <i class="fa-solid fa-lock"></i>
+                    Your bid is processed securely by LiveBid.
+                </p>
+
+            </section>
+
+        </aside>
+
+    </div>
 
 </main>
+
+<footer class="site-footer">
+    <div class="container">
+        © 2026 LiveBid. Bid fairly. Win confidently.
+    </div>
+</footer>
 
 <!-- WebSocket libraries -->
 <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1.6.1/dist/sockjs.min.js"></script>
@@ -278,16 +1164,13 @@
     const countdownMessage =
         document.getElementById('auctionCountdownMessage');
 
-    // Read the formatted deadline from the HTML data attribute.
-    // This avoids serializing LocalDateTime through Jackson.
+    // Preserve existing browser-local-time interpretation.
     const auctionEndTimeText = countdownElement.dataset.endTime;
 
-    // Interpret the database time as browser-local time.
     const auctionEndTime = new Date(
         auctionEndTimeText.replace(' ', 'T')
     ).getTime();
 
-    // Declare before the first countdown update.
     let countdownInterval;
 
     function updateAuctionCountdown() {
@@ -337,7 +1220,6 @@
             'Time remaining until auction ends.';
     }
 
-    // Run immediately, then every second.
     updateAuctionCountdown();
 
     countdownInterval = setInterval(
@@ -365,8 +1247,6 @@
     let lastProcessedBidId = existingBidIds.length > 0
         ? Math.max(...existingBidIds)
         : 0;
-
-    console.log('Initial processed bid ID:', lastProcessedBidId);
 
     const socket = new SockJS('/ws');
     const stompClient = Stomp.over(socket);
@@ -412,8 +1292,6 @@
                 }
 
                 lastProcessedBidId = bidId;
-
-                console.log('New live bid received:', bid);
 
                 // Update highest bid.
                 document.getElementById('currentHighestBid').textContent =
@@ -461,20 +1339,23 @@
                 const bidderCell = document.createElement('td');
 
                 const bidderName = document.createElement('span');
+                bidderName.classList.add('bidder-name');
                 bidderName.textContent = bid.bidderName;
 
                 const leadingLabel = document.createElement('span');
                 leadingLabel.classList.add('leading-label');
-                leadingLabel.textContent = ' LEADING BIDDER';
+                leadingLabel.textContent = 'LEADING BIDDER';
 
                 bidderCell.appendChild(bidderName);
                 bidderCell.appendChild(leadingLabel);
 
                 const amountCell = document.createElement('td');
+                amountCell.classList.add('bid-amount');
                 amountCell.textContent =
                     auctionCurrency + ' ' + amount.toFixed(2);
 
                 const timeCell = document.createElement('td');
+                timeCell.classList.add('bid-time');
 
                 const placedAt = new Date(bid.placedAt);
 

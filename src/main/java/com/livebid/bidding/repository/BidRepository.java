@@ -21,4 +21,9 @@ public interface BidRepository extends JpaRepository<Bid, Long> {
     List<Bid> findByBidderIdOrderByPlacedAtDesc(Long bidderId);
     long countByAuctionId(Long auctionId);
     Optional<Bid> findTopByAuctionIdOrderByAmountDesc(Long auctionId);
+
+    @EntityGraph(attributePaths = {"bidder"})
+    Optional<Bid> findFirstByAuctionIdOrderByAmountDescPlacedAtAscIdAsc(
+            Long auctionId
+    );
 }
