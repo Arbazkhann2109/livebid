@@ -59,7 +59,18 @@ public class AuthPageController {
 
             securityContextRepository.saveContext(context, request, response);
 
+            boolean isAdmin = authentication.getAuthorities()
+                    .stream()
+                    .anyMatch(authority ->
+                            authority.getAuthority().equals("ROLE_ADMIN"));
+
+            if (isAdmin) {
+                return "redirect:/admin";
+            }
+
             return "redirect:/";
+
+
         } catch (AuthenticationException ex) {
             SecurityContextHolder.clearContext();
             redirectAttributes.addFlashAttribute(

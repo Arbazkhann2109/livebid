@@ -1,0 +1,1087 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#080d19">
+
+    <title>LiveBid — Admin Dashboard</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg: #080d19;
+            --surface: #101827;
+            --surface-light: #162237;
+            --surface-hover: #1b2a43;
+            --text: #f4f7ff;
+            --muted: #94a3b8;
+            --accent: #55a8ff;
+            --accent-bright: #79bdff;
+            --border: rgba(148, 163, 184, .14);
+            --success: #34d399;
+            --warning: #fbbf24;
+            --danger: #f87171;
+            --purple: #a78bfa;
+            --radius: 18px;
+            --container: 1250px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background:
+                radial-gradient(
+                    ellipse at 50% -25%,
+                    rgba(37, 99, 235, .16),
+                    transparent 55%
+                ),
+                var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .container {
+            width: min(var(--container), 92%);
+            margin: 0 auto;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Navigation */
+
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(11, 20, 37, .96);
+            border-bottom: 1px solid rgba(148, 163, 184, .18);
+            backdrop-filter: blur(15px);
+        }
+
+        .navbar {
+            min-height: 82px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 25px;
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.9rem;
+            font-weight: 700;
+            letter-spacing: -1.2px;
+            white-space: nowrap;
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            display: grid;
+            place-items: center;
+            border-radius: 13px;
+            background: linear-gradient(135deg, #287bd5, #65b7ff);
+            color: white;
+            font-size: 1.15rem;
+            box-shadow: 0 5px 22px rgba(59, 130, 246, .28);
+        }
+
+        .logo span:last-child {
+            color: var(--accent);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            padding: 11px 15px;
+            border: 1px solid transparent;
+            border-radius: 10px;
+            color: var(--muted);
+            font-size: .88rem;
+            font-weight: 600;
+            transition: .2s ease;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            border-color: rgba(85, 168, 255, .2);
+            background: rgba(85, 168, 255, .09);
+            color: var(--accent-bright);
+        }
+
+        .nav-link.active {
+            background: rgba(85, 168, 255, .14);
+        }
+
+        .admin-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 13px;
+            border: 1px solid rgba(85, 168, 255, .25);
+            border-radius: 999px;
+            background: rgba(37, 99, 235, .09);
+            color: var(--accent-bright);
+            font-size: .75rem;
+            font-weight: 800;
+            letter-spacing: .7px;
+            white-space: nowrap;
+        }
+
+        .admin-label i {
+            color: var(--success);
+        }
+
+        /* Page heading */
+
+        .page-header {
+            padding: 55px 0 32px;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            padding: 7px 14px;
+            border: 1px solid rgba(85, 168, 255, .25);
+            border-radius: 999px;
+            background: rgba(37, 99, 235, .09);
+            color: var(--accent-bright);
+            font-size: .75rem;
+            font-weight: 700;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+        }
+
+        .eyebrow-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--success);
+            box-shadow: 0 0 12px var(--success);
+        }
+
+        .page-header h1 {
+            margin: 20px 0 9px;
+            font-size: clamp(2.2rem, 5vw, 3.3rem);
+            line-height: 1.15;
+            letter-spacing: -2px;
+        }
+
+        .page-header h1 span {
+            background: linear-gradient(100deg, #55a8ff, #a5d8ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .page-description {
+            max-width: 650px;
+            margin: 0;
+            color: var(--muted);
+            font-size: 1rem;
+        }
+
+        /* Section headings */
+
+        .section-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 15px;
+            margin: 15px 0 22px;
+        }
+
+        .section-heading h2 {
+            margin: 0;
+            font-size: 1.35rem;
+            letter-spacing: -.5px;
+        }
+
+        .section-heading p {
+            margin: 5px 0 0;
+            color: var(--muted);
+            font-size: .85rem;
+        }
+
+        .section-tag {
+            padding: 7px 11px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: rgba(85, 168, 255, .07);
+            color: var(--accent-bright);
+            font-size: .7rem;
+            font-weight: 700;
+            letter-spacing: .7px;
+            white-space: nowrap;
+        }
+
+        /* Statistics */
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 17px;
+        }
+
+        .stat-card {
+            min-width: 0;
+            padding: 22px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: linear-gradient(145deg, #142035, #0e1727);
+            transition: transform .25s ease, border-color .25s ease,
+                        box-shadow .25s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(85, 168, 255, .45);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, .2);
+        }
+
+        .stat-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 22px;
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: .8rem;
+            line-height: 1.5;
+        }
+
+        .stat-icon {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 1.05rem;
+        }
+
+        .icon-blue {
+            background: rgba(85, 168, 255, .1);
+            color: var(--accent-bright);
+        }
+
+        .icon-green {
+            background: rgba(52, 211, 153, .1);
+            color: var(--success);
+        }
+
+        .icon-yellow {
+            background: rgba(251, 191, 36, .1);
+            color: var(--warning);
+        }
+
+        .icon-purple {
+            background: rgba(167, 139, 250, .1);
+            color: var(--purple);
+        }
+
+        .icon-red {
+            background: rgba(248, 113, 113, .1);
+            color: var(--danger);
+        }
+
+        .stat-value {
+            margin: 0;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            overflow-wrap: anywhere;
+        }
+
+        .stat-caption {
+            margin: 5px 0 0;
+            color: var(--muted);
+            font-size: .78rem;
+        }
+
+        /* Content panels */
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+            margin-top: 28px;
+        }
+
+        .panel {
+            min-width: 0;
+            padding: 26px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: linear-gradient(145deg, #142035, #0e1727);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, .12);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 25px;
+        }
+
+        .panel-title {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .panel-icon {
+            width: 38px;
+            height: 38px;
+            display: grid;
+            place-items: center;
+            border: 1px solid rgba(85, 168, 255, .2);
+            border-radius: 11px;
+            background: rgba(85, 168, 255, .09);
+            color: var(--accent);
+        }
+
+        .panel-subtitle {
+            margin: 6px 0 0;
+            color: var(--muted);
+            font-size: .8rem;
+        }
+
+        /* Auction status breakdown */
+
+        .status-row {
+            margin-bottom: 22px;
+        }
+
+        .status-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 9px;
+            font-size: .85rem;
+        }
+
+        .status-name {
+            color: #dbeafe;
+            font-weight: 600;
+        }
+
+        .status-count {
+            color: var(--text);
+            font-weight: 700;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 8px;
+            overflow: hidden;
+            border-radius: 999px;
+            background: #26344a;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 999px;
+            transition: width .4s ease;
+        }
+
+        .progress-draft {
+            background: var(--warning);
+        }
+
+        .progress-scheduled {
+            background: var(--purple);
+        }
+
+        .progress-live {
+            background: var(--success);
+        }
+
+        .progress-ended {
+            background: var(--accent);
+        }
+
+        .progress-cancelled {
+            background: var(--danger);
+        }
+
+        .empty-message {
+            padding: 18px 0;
+            color: var(--muted);
+            font-size: .85rem;
+        }
+
+        /* Quick actions */
+
+        .quick-actions {
+            display: grid;
+            gap: 13px;
+        }
+
+        .action-card {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 17px;
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            background: rgba(8, 13, 25, .4);
+            transition: .2s ease;
+        }
+
+        .action-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(85, 168, 255, .45);
+            background: var(--surface-hover);
+        }
+
+        .action-icon {
+            width: 43px;
+            height: 43px;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            border: 1px solid rgba(85, 168, 255, .2);
+            border-radius: 12px;
+            background: rgba(85, 168, 255, .1);
+            color: var(--accent-bright);
+            font-size: 1.05rem;
+        }
+
+        .action-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .action-content strong {
+            display: block;
+            font-size: .9rem;
+        }
+
+        .action-content small {
+            display: block;
+            margin-top: 4px;
+            color: var(--muted);
+            font-size: .78rem;
+        }
+
+        .action-arrow {
+            color: var(--accent);
+            transition: transform .2s ease;
+        }
+
+        .action-card:hover .action-arrow {
+            transform: translateX(4px);
+        }
+
+        /* Analytics table */
+
+        .table-panel {
+            margin-top: 25px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 580px;
+        }
+
+        thead {
+            background: rgba(8, 13, 25, .55);
+        }
+
+        th {
+            padding: 16px;
+            color: var(--muted);
+            font-size: .73rem;
+            font-weight: 700;
+            letter-spacing: .7px;
+            text-align: left;
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            color: #dbeafe;
+            font-size: .85rem;
+        }
+
+        tbody tr {
+            transition: background .2s ease;
+        }
+
+        tbody tr:hover {
+            background: rgba(85, 168, 255, .06);
+        }
+
+        .number {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+        }
+
+        /* Footer */
+
+        .site-footer {
+            margin-top: 55px;
+            padding: 26px 0;
+            border-top: 1px solid var(--border);
+            background: #080d19;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            color: var(--muted);
+            font-size: .82rem;
+        }
+
+        .footer-brand {
+            color: var(--text);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .footer-brand span {
+            color: var(--accent);
+        }
+
+        /* Responsive */
+
+        @media (max-width: 1100px) {
+            .stats-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 800px) {
+            .navbar {
+                align-items: flex-start;
+                flex-direction: column;
+                justify-content: center;
+                gap: 12px;
+                padding: 16px 0;
+            }
+
+            .nav-links {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+
+            .nav-link {
+                padding: 9px 11px;
+                font-size: .8rem;
+            }
+
+            .admin-label {
+                display: none;
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .page-header {
+                padding-top: 40px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 12px;
+            }
+
+            .stat-card {
+                padding: 17px;
+            }
+
+            .stat-value {
+                font-size: 1.7rem;
+            }
+
+            .stat-icon {
+                width: 36px;
+                height: 36px;
+                font-size: .9rem;
+            }
+
+            .panel {
+                padding: 19px;
+            }
+
+            .section-heading {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .logo {
+                font-size: 1.6rem;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                transition-duration: .01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- Navigation -->
+
+<header class="site-header">
+
+    <nav class="navbar container">
+
+        <a class="logo" th:href="@{/}" aria-label="LiveBid homepage">
+
+            <span class="logo-icon">
+                <i class="fa-solid fa-gavel"></i>
+            </span>
+
+            Live<span>Bid</span>
+
+        </a>
+
+        <div class="nav-links">
+
+            <a th:href="@{/admin}" class="nav-link active">
+                <i class="fa-solid fa-gauge-high"></i>
+                Dashboard
+            </a>
+
+            <a th:href="@{/admin/users}" class="nav-link">
+                <i class="fa-solid fa-users"></i>
+                Users
+            </a>
+
+            <a th:href="@{/admin/auctions}" class="nav-link">
+                <i class="fa-solid fa-gavel"></i>
+                Auctions
+            </a>
+
+            <a th:href="@{/}" class="nav-link">
+                <i class="fa-solid fa-house"></i>
+                Visit Website
+            </a>
+
+        </div>
+
+        <div class="admin-label">
+            <i class="fa-solid fa-circle-check"></i>
+            ADMINISTRATOR
+        </div>
+
+    </nav>
+
+</header>
+
+<main class="container">
+
+    <!-- Page heading -->
+
+    <section class="page-header">
+
+        <div class="eyebrow">
+            <span class="eyebrow-dot"></span>
+            Platform administration
+        </div>
+
+        <h1>
+            Admin <span>Dashboard</span>
+        </h1>
+
+        <p class="page-description">
+            Monitor platform activity, manage users and auctions,
+            and keep track of your marketplace performance.
+        </p>
+
+    </section>
+
+    <!-- Platform statistics -->
+
+    <section>
+
+        <div class="section-heading">
+
+            <div>
+                <h2>Platform Overview</h2>
+                <p>Your marketplace statistics at a glance.</p>
+            </div>
+
+            <span class="section-tag">LIVE OVERVIEW</span>
+
+        </div>
+
+        <div class="stats-grid">
+
+            <article class="stat-card">
+
+                <div class="stat-top">
+                    <span class="stat-label">Registered Users</span>
+
+                    <span class="stat-icon icon-blue">
+                        <i class="fa-solid fa-users"></i>
+                    </span>
+                </div>
+
+                <h3 class="stat-value" th:text="${totalUsers}">0</h3>
+
+                <p class="stat-caption">Total user accounts</p>
+
+            </article>
+
+            <article class="stat-card">
+
+                <div class="stat-top">
+                    <span class="stat-label">Total Auctions</span>
+
+                    <span class="stat-icon icon-purple">
+                        <i class="fa-solid fa-gavel"></i>
+                    </span>
+                </div>
+
+                <h3 class="stat-value" th:text="${totalAuctions}">0</h3>
+
+                <p class="stat-caption">All auction listings</p>
+
+            </article>
+
+            <article class="stat-card">
+
+                <div class="stat-top">
+                    <span class="stat-label">Live Auctions</span>
+
+                    <span class="stat-icon icon-green">
+                        <i class="fa-solid fa-tower-broadcast"></i>
+                    </span>
+                </div>
+
+                <h3 class="stat-value" th:text="${liveAuctions}">0</h3>
+
+                <p class="stat-caption">Currently active auctions</p>
+
+            </article>
+
+            <article class="stat-card">
+
+                <div class="stat-top">
+                    <span class="stat-label">Completed Auctions</span>
+
+                    <span class="stat-icon icon-yellow">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </span>
+                </div>
+
+                <h3 class="stat-value" th:text="${completedAuctions}">0</h3>
+
+                <p class="stat-caption">Successfully ended</p>
+
+            </article>
+
+            <article class="stat-card">
+
+                <div class="stat-top">
+                    <span class="stat-label">Total Bids</span>
+
+                    <span class="stat-icon icon-red">
+                        <i class="fa-solid fa-arrow-trend-up"></i>
+                    </span>
+                </div>
+
+                <h3 class="stat-value" th:text="${totalBids}">0</h3>
+
+                <p class="stat-caption">Total bidding activity</p>
+
+            </article>
+
+        </div>
+
+    </section>
+
+    <!-- Status breakdown and quick actions -->
+
+    <div class="content-grid">
+
+        <!-- Auction status -->
+
+        <section class="panel">
+
+            <div class="panel-header">
+
+                <div>
+                    <h2 class="panel-title">
+                        <span class="panel-icon">
+                            <i class="fa-solid fa-chart-pie"></i>
+                        </span>
+                        Auction Status
+                    </h2>
+
+                    <p class="panel-subtitle">
+                        Distribution across all auction statuses.
+                    </p>
+                </div>
+
+                <span class="section-tag">BREAKDOWN</span>
+
+            </div>
+
+            <div th:each="entry : ${auctionStatuses}" class="status-row">
+
+                <div class="status-info">
+
+                    <span class="status-name"
+                          th:text="${entry.key}">
+                        Status
+                    </span>
+
+                    <span class="status-count"
+                          th:text="${entry.value}">
+                        0
+                    </span>
+
+                </div>
+
+                <div class="progress-track">
+
+                    <div class="progress-bar"
+                         th:classappend="${entry.key == 'Draft' ? ' progress-draft' :
+                             entry.key == 'Scheduled' ? ' progress-scheduled' :
+                             entry.key == 'Live' ? ' progress-live' :
+                             entry.key == 'Ended' ? ' progress-ended' :
+                             ' progress-cancelled'}"
+                         th:style="'width:' + (${totalAuctions > 0} ?
+                             (${entry.value} * 100.0 / ${totalAuctions}) : 0) + '%'">
+                    </div>
+
+                </div>
+
+            </div>
+
+            <p th:if="${#maps.isEmpty(auctionStatuses)}"
+               class="empty-message">
+                No auction data available yet.
+            </p>
+
+        </section>
+
+        <!-- Quick actions -->
+
+        <section class="panel">
+
+            <div class="panel-header">
+
+                <div>
+                    <h2 class="panel-title">
+                        <span class="panel-icon">
+                            <i class="fa-solid fa-bolt"></i>
+                        </span>
+                        Quick Actions
+                    </h2>
+
+                    <p class="panel-subtitle">
+                        Manage your marketplace.
+                    </p>
+                </div>
+
+                <span class="section-tag">SHORTCUTS</span>
+
+            </div>
+
+            <div class="quick-actions">
+
+                <a th:href="@{/admin/users}" class="action-card">
+
+                    <span class="action-icon">
+                        <i class="fa-solid fa-users"></i>
+                    </span>
+
+                    <span class="action-content">
+                        <strong>User Management</strong>
+                        <small>
+                            Search, inspect and manage user accounts.
+                        </small>
+                    </span>
+
+                    <i class="fa-solid fa-arrow-right action-arrow"></i>
+
+                </a>
+
+                <a th:href="@{/admin/auctions}" class="action-card">
+
+                    <span class="action-icon">
+                        <i class="fa-solid fa-gavel"></i>
+                    </span>
+
+                    <span class="action-content">
+                        <strong>Auction Management</strong>
+                        <small>
+                            Search, inspect and manage auctions.
+                        </small>
+                    </span>
+
+                    <i class="fa-solid fa-arrow-right action-arrow"></i>
+
+                </a>
+
+            </div>
+
+        </section>
+
+    </div>
+
+    <!-- Monthly analytics -->
+
+    <section class="panel table-panel">
+
+        <div class="panel-header">
+
+            <div>
+                <h2 class="panel-title">
+                    <span class="panel-icon">
+                        <i class="fa-solid fa-chart-column"></i>
+                    </span>
+                    Monthly Platform Analytics
+                </h2>
+
+                <p class="panel-subtitle">
+                    User registrations, auctions and bids over the last six months.
+                </p>
+            </div>
+
+            <span class="section-tag">LAST 6 MONTHS</span>
+
+        </div>
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+                <tr>
+                    <th>MONTH</th>
+                    <th>NEW USERS</th>
+                    <th>AUCTIONS CREATED</th>
+                    <th>BIDS PLACED</th>
+                </tr>
+                </thead>
+
+                <tbody>
+
+                <tr th:each="stat : ${monthlyStats}">
+
+                    <td th:text="${stat.month}"></td>
+
+                    <td class="number" th:text="${stat.users}"></td>
+
+                    <td class="number" th:text="${stat.auctions}"></td>
+
+                    <td class="number" th:text="${stat.bids}"></td>
+
+                </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+</main>
+
+<!-- Footer -->
+
+<footer class="site-footer">
+
+    <div class="container footer-content">
+
+        <div class="footer-brand">
+            Live<span>Bid</span>
+        </div>
+
+        <div>
+            © 2026 LiveBid. Bid fairly. Win confidently.
+        </div>
+
+        <div>
+            Administration Panel
+        </div>
+
+    </div>
+
+</footer>
+
+</body>
+</html>

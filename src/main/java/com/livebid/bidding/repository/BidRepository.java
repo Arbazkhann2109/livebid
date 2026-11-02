@@ -26,4 +26,9 @@ public interface BidRepository extends JpaRepository<Bid, Long> {
     Optional<Bid> findFirstByAuctionIdOrderByAmountDescPlacedAtAscIdAsc(
             Long auctionId
     );
+
+    long countByPlacedAtGreaterThanEqualAndPlacedAtLessThan(
+            java.time.LocalDateTime start,
+            java.time.LocalDateTime end
+    );
 }

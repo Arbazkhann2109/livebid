@@ -1,0 +1,1063 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LiveBid | Auction Management</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <style>
+        :root {
+            --bg: #080d19;
+            --surface: #101827;
+            --surface-light: #162237;
+            --surface-hover: #1b2a43;
+            --text: #f4f7ff;
+            --muted: #94a3b8;
+            --accent: #55a8ff;
+            --accent-bright: #79bdff;
+            --border: rgba(148, 163, 184, .14);
+            --success: #34d399;
+            --danger: #fb7185;
+            --warning: #fbbf24;
+            --radius: 20px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: 'DM Sans', sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at 15% 0%, rgba(37, 99, 235, .15), transparent 30%),
+                radial-gradient(circle at 90% 15%, rgba(14, 165, 233, .09), transparent 25%),
+                var(--bg);
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button, input {
+            font: inherit;
+        }
+
+       /* Navigation - matched to Dashboard */
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(11, 20, 37, .96);
+    border-bottom: 1px solid rgba(148, 163, 184, .18);
+    backdrop-filter: blur(15px);
+}
+
+.nav-inner {
+    width: min(1250px, 92%);
+    min-height: 82px;
+    margin: 0 auto;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 25px;
+}
+
+.brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.9rem;
+    font-weight: 700;
+    letter-spacing: -1.2px;
+    white-space: nowrap;
+}
+
+.brand-icon {
+    width: 45px;
+    height: 45px;
+    display: grid;
+    place-items: center;
+    border-radius: 13px;
+    background: linear-gradient(135deg, #287bd5, #65b7ff);
+    color: white;
+    font-size: 1.15rem;
+    box-shadow: 0 5px 22px rgba(59, 130, 246, .28);
+}
+
+.brand span:last-child {
+    color: var(--accent);
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-links .nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 11px 15px;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    color: var(--muted);
+    background: transparent;
+    font-size: .88rem;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: .2s ease;
+}
+
+.nav-links .nav-link:hover,
+.nav-links .nav-link.active {
+    border-color: rgba(85, 168, 255, .2);
+    background: rgba(85, 168, 255, .09);
+    color: var(--accent-bright);
+}
+
+.nav-links .nav-link.active {
+    background: rgba(85, 168, 255, .14);
+}
+
+.admin-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 13px;
+    border: 1px solid rgba(85, 168, 255, .25);
+    border-radius: 999px;
+    background: rgba(37, 99, 235, .09);
+    color: var(--accent-bright);
+    font-size: .75rem;
+    font-weight: 800;
+    letter-spacing: .7px;
+    white-space: nowrap;
+}
+
+.admin-badge i {
+    color: var(--success);
+}
+        .container {
+            width: min(1380px, calc(100% - 70px));
+            margin: 0 auto;
+            padding: 45px 0 25px;
+        }
+
+        .page-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .eyebrow {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            color: var(--accent);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .page-heading h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(28px, 4vw, 38px);
+            letter-spacing: -1.3px;
+        }
+
+        .page-heading p {
+            color: var(--muted);
+            font-size: 14px;
+            margin-top: 9px;
+        }
+
+        .breadcrumb {
+            color: var(--muted);
+            font-size: 12px;
+            margin-bottom: 17px;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--accent);
+        }
+
+        .breadcrumb span {
+            color: var(--accent);
+        }
+
+        .panel {
+            background: linear-gradient(145deg, #142035, #0e1727);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 27px;
+            box-shadow: 0 15px 45px rgba(0, 0, 0, .12);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 23px;
+        }
+
+        .panel-header h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 19px;
+        }
+
+        .panel-header p {
+            color: var(--muted);
+            font-size: 12px;
+            margin-top: 6px;
+        }
+
+        .panel-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            color: var(--accent-bright);
+            background: rgba(37, 99, 235, .12);
+            border: 1px solid rgba(85, 168, 255, .2);
+            padding: 8px 12px;
+            border-radius: 30px;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .5px;
+            white-space: nowrap;
+        }
+
+        .search-form {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 23px;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 0;
+            padding: 13px 16px;
+            color: var(--text);
+            background: #0a1424;
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            outline: none;
+            font-size: 13px;
+            transition: .2s;
+        }
+
+        .search-input::placeholder {
+            color: #64748b;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(85, 168, 255, .1);
+        }
+
+        .search-button {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 9px;
+            padding: 13px 20px;
+            color: white;
+            background: linear-gradient(135deg, #2563eb, #0284c7);
+            border: none;
+            border-radius: 11px;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .search-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(37, 99, 235, .25);
+        }
+
+        .success-message {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 14px 16px;
+            margin-bottom: 20px;
+            color: #6ee7b7;
+            background: rgba(16, 56, 47, .65);
+            border: 1px solid rgba(52, 211, 153, .25);
+            border-radius: 11px;
+            font-size: 13px;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            border-radius: 13px;
+        }
+
+        table {
+            width: 100%;
+            min-width: 1050px;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: rgba(8, 13, 25, .55);
+        }
+
+        th {
+            padding: 16px 14px;
+            color: #94a3b8;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .7px;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 16px 14px;
+            border-top: 1px solid var(--border);
+            color: #dce5f2;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            transition: background .2s;
+        }
+
+        tbody tr:hover {
+            background: rgba(85, 168, 255, .055);
+        }
+
+        .auction-id {
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        .auction-title {
+            max-width: 220px;
+            color: var(--text);
+            font-weight: 700;
+            white-space: normal;
+            line-height: 1.5;
+        }
+
+        .seller {
+            color: var(--muted);
+        }
+
+        .price {
+            color: var(--success);
+            font-weight: 800;
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 30px;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .status::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .live {
+            color: #6ee7b7;
+            background: rgba(16, 56, 47, .75);
+        }
+
+        .ended {
+            color: #93c5fd;
+            background: rgba(20, 46, 80, .75);
+        }
+
+        .draft {
+            color: #fcd34d;
+            background: rgba(61, 48, 20, .75);
+        }
+
+        .scheduled {
+            color: #c4b5fd;
+            background: rgba(48, 36, 77, .75);
+        }
+
+        .cancelled {
+            color: #fda4af;
+            background: rgba(66, 30, 43, .75);
+        }
+
+        .other {
+            color: #cbd5e1;
+            background: rgba(51, 65, 85, .75);
+        }
+
+        .actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 9px 11px;
+            border: 1px solid transparent;
+            border-radius: 9px;
+            font-size: 10px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .inspect-button {
+            color: var(--accent-bright);
+            background: rgba(37, 99, 235, .13);
+            border-color: rgba(85, 168, 255, .2);
+        }
+
+        .inspect-button:hover {
+            color: white;
+            background: #2563eb;
+        }
+
+        .cancel-button {
+            color: #fda4af;
+            background: rgba(127, 29, 29, .2);
+            border-color: rgba(251, 113, 133, .2);
+        }
+
+        .cancel-button:hover {
+            color: white;
+            background: #be123c;
+        }
+
+        .unavailable {
+            color: #64748b;
+            padding-left: 10px;
+        }
+
+        .empty {
+            padding: 45px 20px;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        .empty i {
+            display: block;
+            color: #64748b;
+            font-size: 27px;
+            margin-bottom: 13px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 18px;
+            margin-top: 25px;
+        }
+
+        .pagination a {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 15px;
+            color: var(--accent-bright);
+            background: var(--surface-light);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 800;
+            transition: .2s;
+        }
+
+        .pagination a:hover {
+            background: var(--surface-hover);
+            border-color: rgba(85, 168, 255, .4);
+        }
+
+        .pagination span {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .pagination strong {
+            color: var(--text);
+        }
+
+        .footer {
+            padding: 32px 0 15px;
+            color: #64748b;
+            text-align: center;
+            font-size: 11px;
+        }
+
+        @media (max-width: 850px) {
+            .nav-inner {
+                padding: 0 22px;
+            }
+
+            .nav-links {
+                gap: 17px;
+            }
+
+            .container {
+                width: calc(100% - 40px);
+                padding-top: 32px;
+            }
+
+            .panel {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .nav-inner {
+                min-height: 68px;
+                padding: 0 15px;
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+
+            .brand {
+                font-size: 22px;
+            }
+
+            .brand-icon {
+                width: 34px;
+                height: 34px;
+            }
+
+            .nav-links {
+                order: 3;
+                width: 100%;
+                justify-content: space-between;
+                padding: 0 0 13px;
+            }
+
+            .nav-links a {
+                font-size: 11px;
+            }
+
+            .admin-badge {
+                padding: 7px 9px;
+                font-size: 9px;
+            }
+
+            .container {
+                width: calc(100% - 28px);
+                padding-top: 28px;
+            }
+
+            .page-heading {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .panel {
+                padding: 16px;
+                border-radius: 15px;
+            }
+
+            .panel-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .search-form {
+                flex-direction: column;
+            }
+
+            .search-button {
+                width: 100%;
+            }
+
+            .pagination {
+                gap: 9px;
+            }
+
+            .pagination a {
+                padding: 9px 11px;
+            }
+        }
+
+
+.nav-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 13px;
+    padding: 20px 25px;
+    color: #94a3b8;
+    border: 1px solid transparent;
+    border-radius: 17px;
+    font-size: 21px;
+    font-weight: 700;
+    transition: all .25s ease;
+}
+
+.nav-link i {
+    font-size: 23px;
+}
+
+.nav-link:hover {
+    color: #79bdff;
+    background: rgba(37, 99, 235, .10);
+}
+
+.nav-link.active {
+    color: #79bdff;
+    background: #172d49;
+    border-color: rgba(85, 168, 255, .25);
+}
+
+@media (max-width: 600px) {
+    .nav-links {
+        gap: 5px;
+    }
+
+    .nav-link {
+        gap: 7px;
+        padding: 12px 10px;
+        font-size: 13px;
+        border-radius: 12px;
+    }
+
+    .nav-link i {
+        font-size: 15px;
+    }
+}
+
+/* Larger Auction Management Content */
+.container {
+    width: min(1380px, calc(100% - 70px));
+    padding-top: 52px;
+}
+
+.breadcrumb {
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+.eyebrow {
+    font-size: 13px;
+    margin-bottom: 14px;
+}
+
+.page-heading {
+    margin-bottom: 36px;
+}
+
+.page-heading h1 {
+    font-size: clamp(34px, 4vw, 44px);
+}
+
+.page-heading p {
+    font-size: 16px;
+    margin-top: 12px;
+}
+
+.panel {
+    padding: 32px;
+}
+
+.panel-header {
+    margin-bottom: 27px;
+}
+
+.panel-header h2 {
+    font-size: 23px;
+}
+
+.panel-header p {
+    font-size: 14px;
+    margin-top: 7px;
+}
+
+.panel-tag {
+    padding: 10px 14px;
+    font-size: 12px;
+}
+
+.search-form {
+    gap: 14px;
+    margin-bottom: 27px;
+}
+
+.search-input {
+    padding: 16px 18px;
+    font-size: 15px;
+    border-radius: 12px;
+}
+
+.search-button {
+    padding: 16px 23px;
+    font-size: 14px;
+}
+
+.success-message {
+    padding: 16px 18px;
+    font-size: 15px;
+}
+
+th {
+    padding: 19px 16px;
+    font-size: 12px;
+}
+
+td {
+    padding: 19px 16px;
+    font-size: 14px;
+}
+
+.auction-title {
+    font-size: 15px;
+    max-width: 250px;
+}
+
+.status {
+    padding: 7px 12px;
+    font-size: 12px;
+}
+
+.actions {
+    gap: 10px;
+}
+
+.action-button {
+    padding: 11px 13px;
+    font-size: 12px;
+}
+
+.empty {
+    padding: 55px 22px;
+    font-size: 15px;
+}
+
+.empty i {
+    font-size: 32px;
+}
+
+.pagination {
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.pagination a {
+    padding: 12px 17px;
+    font-size: 13px;
+}
+
+.pagination span {
+    font-size: 14px;
+}
+
+.footer {
+    font-size: 12px;
+    padding-top: 38px;
+}
+
+/* Keep the larger content responsive */
+@media (max-width: 850px) {
+    .container {
+        width: calc(100% - 40px);
+        padding-top: 35px;
+    }
+
+    .panel {
+        padding: 24px;
+    }
+}
+
+@media (max-width: 600px) {
+    .container {
+        width: calc(100% - 28px);
+        padding-top: 28px;
+    }
+
+    .page-heading h1 {
+        font-size: 32px;
+    }
+
+    .page-heading p {
+        font-size: 14px;
+    }
+
+    .panel {
+        padding: 18px;
+    }
+
+    .panel-header h2 {
+        font-size: 21px;
+    }
+
+    .search-input {
+        font-size: 14px;
+    }
+
+    .search-button {
+        font-size: 14px;
+    }
+}
+
+
+    </style>
+</head>
+
+<body>
+
+<header class="navbar">
+    <div class="nav-inner">
+
+        <a th:href="@{/}" class="brand">
+            <span class="brand-icon">
+                <i class="fa-solid fa-gavel"></i>
+            </span>
+            Live<span>Bid</span>
+        </a>
+
+        <nav class="nav-links">
+            <a th:href="@{/admin}" class="nav-link">
+                <i class="fa-solid fa-gauge-high"></i>
+                <span>Dashboard</span>
+            </a>
+
+            <a th:href="@{/admin/users}" class="nav-link">
+                <i class="fa-solid fa-users"></i>
+                <span>Users</span>
+            </a>
+
+            <a th:href="@{/admin/auctions}" class="nav-link active">
+                <i class="fa-solid fa-gavel"></i>
+                <span>Auctions</span>
+            </a>
+        </nav>
+
+        <div class="admin-badge">
+            <i class="fa-solid fa-shield-halved"></i>
+            ADMINISTRATOR
+        </div>
+
+    </div>
+</header>
+
+<main class="container">
+
+    <div class="breadcrumb">
+        <a th:href="@{/admin}">Admin Dashboard</a>
+        <span> / Auction Management</span>
+    </div>
+
+    <section class="page-heading">
+        <div>
+            <div class="eyebrow">
+                <i class="fa-solid fa-gavel"></i>
+                PLATFORM CONTROL
+            </div>
+
+            <h1>Auction Management</h1>
+
+            <p>Monitor, inspect and manage all auctions across LiveBid.</p>
+        </div>
+    </section>
+
+    <section class="panel">
+
+        <div class="panel-header">
+            <div>
+                <h2>All Auctions</h2>
+                <p>Search auctions and review their current status.</p>
+            </div>
+
+            <span class="panel-tag">
+                <i class="fa-solid fa-sliders"></i>
+                AUCTION CONTROL
+            </span>
+        </div>
+
+        <form class="search-form"
+              method="get"
+              th:action="@{/admin/auctions}">
+
+            <input
+                    class="search-input"
+                    type="text"
+                    name="search"
+                    placeholder="Search auctions by title..."
+                    th:value="${search}"
+            >
+
+            <button class="search-button" type="submit">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                Search Auctions
+            </button>
+
+        </form>
+
+        <div th:if="${successMessage}"
+             class="success-message"
+             th:text="${successMessage}">
+            <i class="fa-solid fa-circle-check"></i>
+        </div>
+
+        <div class="table-wrapper">
+
+            <table>
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>AUCTION TITLE</th>
+                    <th>SELLER</th>
+                    <th>STARTING PRICE</th>
+                    <th>STATUS</th>
+                    <th>STARTS AT</th>
+                    <th>ENDS AT</th>
+                    <th>ACTIONS</th>
+                </tr>
+                </thead>
+
+                <tbody>
+
+                <tr th:each="auction : ${auctions.content}">
+
+                    <td class="auction-id"
+                        th:text="'#' + ${auction.id}">
+                    </td>
+
+                    <td class="auction-title"
+                        th:text="${auction.title}">
+                    </td>
+
+                    <td class="seller"
+                        th:text="${auction.seller.displayName}">
+                    </td>
+
+                    <td class="price">
+                        <span th:text="${auction.currency}"></span>
+                        <span th:text="${#numbers.formatDecimal(auction.startingPrice, 1, 2)}"></span>
+                    </td>
+
+                    <td>
+                        <span
+                                class="status"
+                                th:classappend="${#strings.toLowerCase(auction.status)}"
+                                th:text="${auction.status}">
+                        </span>
+                    </td>
+
+                    <td th:text="${#temporals.format(auction.startsAt, 'dd MMM yyyy HH:mm')}"></td>
+
+                    <td th:text="${#temporals.format(auction.endsAt, 'dd MMM yyyy HH:mm')}"></td>
+
+                    <td>
+                        <div class="actions">
+
+                            <a
+                                    class="action-button inspect-button"
+                                    th:href="@{/admin/auctions/{id}(id=${auction.id})}">
+                                <i class="fa-solid fa-eye"></i>
+                                Inspect
+                            </a>
+
+                            <form
+                                    th:if="${auction.status == 'DRAFT' or auction.status == 'SCHEDULED' or auction.status == 'LIVE'}"
+                                    th:action="@{/admin/auctions/{id}/cancel(id=${auction.id})}"
+                                    method="post">
+
+                                <button
+                                        type="submit"
+                                        class="action-button cancel-button"
+                                        onclick="return confirm('Are you sure you want to cancel this auction?')">
+                                    <i class="fa-solid fa-ban"></i>
+                                    Cancel
+                                </button>
+
+                            </form>
+
+                            <span
+                                    class="unavailable"
+                                    th:if="${auction.status == 'ENDED' or auction.status == 'CANCELLED'}">
+                                —
+                            </span>
+
+                        </div>
+                    </td>
+
+                </tr>
+
+                <tr th:if="${auctions.empty}">
+                    <td colspan="8" class="empty">
+                        <i class="fa-solid fa-box-open"></i>
+                        No auctions found matching your search.
+                    </td>
+                </tr>
+
+                </tbody>
+            </table>
+
+        </div>
+
+        <div class="pagination" th:if="${auctions.totalPages > 1}">
+
+            <a
+                    th:if="${auctions.hasPrevious()}"
+                    th:href="@{/admin/auctions(page=${currentPage - 1}, search=${search})}">
+                <i class="fa-solid fa-arrow-left"></i>
+                Previous
+            </a>
+
+            <span>
+                Page <strong th:text="${currentPage + 1}"></strong>
+                of <strong th:text="${auctions.totalPages}"></strong>
+            </span>
+
+            <a
+                    th:if="${auctions.hasNext()}"
+                    th:href="@{/admin/auctions(page=${currentPage + 1}, search=${search})}">
+                Next
+                <i class="fa-solid fa-arrow-right"></i>
+            </a>
+
+        </div>
+
+    </section>
+
+    <footer class="footer">
+        © LiveBid Administration Panel · Auction Management
+    </footer>
+
+</main>
+
+</body>
+</html>

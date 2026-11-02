@@ -51,6 +51,12 @@ public class HomeController {
                         && authentication.isAuthenticated()
                         && !(authentication instanceof AnonymousAuthenticationToken);
 
+        boolean isAdmin = authenticated
+                && authentication.getAuthorities()
+                .stream()
+                .anyMatch(authority ->
+                        authority.getAuthority().equals("ROLE_ADMIN"));
+
         // Featured live auction
         Auction featuredAuction = auctionRepository
                 .findFirstByStatusOrderByStartingPriceDesc("LIVE")
@@ -69,6 +75,7 @@ public class HomeController {
         model.addAttribute("appName", "LiveBid");
         model.addAttribute("auctions", auctions.getContent());
         model.addAttribute("isAuthenticated", authenticated);
+        model.addAttribute("isAdmin", isAdmin);
 
         model.addAttribute("featuredAuction", featuredAuction);
 

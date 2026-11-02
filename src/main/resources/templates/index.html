@@ -1060,6 +1060,13 @@
             <div class="nav-actions">
 
                 <a class="login-link"
+                   th:if="${isAdmin}"
+                   th:href="@{/admin}">
+                    <i class="fa-solid fa-gauge-high"></i>
+                    Dashboard
+                </a>
+
+                <a class="login-link"
                    th:if="${isAuthenticated}"
                    th:href="@{/my-auctions}">
                     <i class="fa-solid fa-layer-group"></i>

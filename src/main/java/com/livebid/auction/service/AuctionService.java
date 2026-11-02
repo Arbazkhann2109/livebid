@@ -209,4 +209,37 @@ public class AuctionService {
             auctionRepository.save(auction);
         }
     }
+
+    @Transactional
+    public void cancelAuction(Long auctionId) {
+
+        if (auctionId == null || auctionId <= 0) {
+            throw new IllegalArgumentException(
+                    "Auction ID must be positive."
+            );
+        }
+
+        Auction auction = auctionRepository.findByIdForUpdate(auctionId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Auction not found: " + auctionId
+                        )
+                );
+
+        String status = auction.getStatus();
+
+        if (!"DRAFT".equals(status)
+                && !"SCHEDULED".equals(status)
+                && !"LIVE".equals(status)) {
+
+            throw new IllegalStateException(
+                    "Only draft, scheduled, or live auctions can be cancelled."
+            );
+        }
+
+        auction.setStatus("CANCELLED");
+
+        auctionRepository.save(auction);
+    }
+
 }
