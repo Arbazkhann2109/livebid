@@ -17,13 +17,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
-            AuthenticationProvider authenticationProvider
+            AuthenticationProvider authenticationProvider,
+            com.livebid.security.GoogleOAuth2UserService googleOAuth2UserService
     ) throws Exception {
 
         http
-                // CSRF protection is enabled by default.
-                // Keep it enabled for browser and session-authenticated requests.
-
                 .authenticationProvider(authenticationProvider)
 
                 .exceptionHandling(exceptions -> exceptions
@@ -37,6 +35,10 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/login",
                                 "/register",
+                                "/forgot-password",
+                                "/reset-password",
+                                "/oauth2/**",
+                                "/login/oauth2/**",
                                 "/api/auth/register",
                                 "/api/auth/login",
                                 "/api/auth/logout"
@@ -56,17 +58,31 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/auctions/{auctionId}/bids")
                         .permitAll()
 
-                        .requestMatchers("/admin", "/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/admin", "/admin/**")
+                        .hasRole("ADMIN")
 
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/users/**").authenticated()
-                        .requestMatchers("/api/**").authenticated()
+                        .requestMatchers("/api/admin/**")
+                        .hasRole("ADMIN")
+
+                        .requestMatchers("/api/users/**")
+                        .authenticated()
+
+                        .requestMatchers("/api/**")
+                        .authenticated()
 
                         .anyRequest().permitAll()
                 )
 
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                )
+
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/login")
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .oidcUserService(googleOAuth2UserService)
+                        )
+                        .defaultSuccessUrl("/", true)
                 )
 
                 .formLogin(form -> form.disable())
